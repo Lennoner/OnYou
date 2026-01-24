@@ -1,12 +1,26 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
-    const userId = "1"; // Mock ID
+    // Get user ID from session
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
 
     try {
         const body = await req.json();
         const { answers } = body;
+
+        // Validate required fields
+        if (!answers || typeof answers !== 'object') {
+            return NextResponse.json({ error: "Answers are required" }, { status: 400 });
+        }
 
         // Simple Algorithm to map answers to Radar Dimensions
         const getScore = (key: string) => typeof answers[key] === 'number' ? answers[key] : 3;
@@ -45,7 +59,14 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
-    const userId = "1";
+    // Get user ID from session
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
 
     try {
         // 1. Fetch Self Survey
@@ -58,8 +79,16 @@ export async function GET(req: Request) {
             return NextResponse.json({ exists: false });
         }
 
-        let radarData = JSON.parse(selfResponse.radarData as string);
-        const selfAnswers = selfResponse.answers ? JSON.parse(selfResponse.answers) : {};
+        // Parse JSON with error handling
+        let radarData;
+        let selfAnswers;
+        try {
+            radarData = JSON.parse(selfResponse.radarData as string);
+            selfAnswers = selfResponse.answers ? JSON.parse(selfResponse.answers) : {};
+        } catch (parseError) {
+            console.error("Failed to parse survey data:", parseError);
+            return NextResponse.json({ error: "Corrupted survey data" }, { status: 500 });
+        }
 
         // 2. Fetch Peer Feedbacks
         const peerFeedbacks = await prisma.peerFeedback.findMany({
@@ -81,23 +110,28 @@ export async function GET(req: Request) {
             const counts = peerFeedbacks.length;
 
             peerFeedbacks.forEach(pf => {
-                const scores = JSON.parse(pf.scores);
-                const answers = JSON.parse(pf.answers);
-                const name = pf.respondentName || '친구';
+                try {
+                    const scores = JSON.parse(pf.scores);
+                    const answers = JSON.parse(pf.answers);
+                    const name = pf.respondentName || '친구';
 
-                // Map Scores (Note: IDs must match FriendSurvey questions)
-                // FriendSurvey: past1(Resilience), past2(Pride), present1(Influence), present2(Belonging1), present-select(Belonging2), future1(Potential), future2(Growth)
-                totals.recovery += (scores['past1'] || 0); // Resilience maps to past1
-                totals.pride += (scores['past2'] || 0);
-                totals.influence += (scores['present1'] || 0);
-                totals.belonging += ((scores['present2'] || 0) + (scores['present-select'] || 0)) / 2;
-                totals.potential += (scores['future1'] || 0);
-                totals.growth += (scores['future2'] || 0);
+                    // Map Scores (Note: IDs must match FriendSurvey questions)
+                    // FriendSurvey: past1(Resilience), past2(Pride), present1(Influence), present2(Belonging1), present-select(Belonging2), future1(Potential), future2(Growth)
+                    totals.recovery += (scores['past1'] || 0); // Resilience maps to past1
+                    totals.pride += (scores['past2'] || 0);
+                    totals.influence += (scores['present1'] || 0);
+                    totals.belonging += ((scores['present2'] || 0) + (scores['present-select'] || 0)) / 2;
+                    totals.potential += (scores['future1'] || 0);
+                    totals.growth += (scores['future2'] || 0);
 
-                // Collect Text
-                if (answers['past-text']) peerAnswers.q1.push({ text: answers['past-text'], author: name });
-                if (answers['present-text']) peerAnswers.q2.push({ text: answers['present-text'], author: name });
-                if (answers['future-text']) peerAnswers.q3.push({ text: answers['future-text'], author: name });
+                    // Collect Text
+                    if (answers['past-text']) peerAnswers.q1.push({ text: answers['past-text'], author: name });
+                    if (answers['present-text']) peerAnswers.q2.push({ text: answers['present-text'], author: name });
+                    if (answers['future-text']) peerAnswers.q3.push({ text: answers['future-text'], author: name });
+                } catch (parseError) {
+                    console.error("Failed to parse peer feedback:", pf.id, parseError);
+                    // Skip this feedback if parsing fails
+                }
             });
 
             // Update Radar Data B (Peer)

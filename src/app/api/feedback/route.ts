@@ -6,6 +6,20 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { inviteCode, respondentName, scores, answers } = body;
 
+        // Validate required fields
+        if (!inviteCode || typeof inviteCode !== 'string') {
+            return NextResponse.json({ error: "Invite code is required" }, { status: 400 });
+        }
+        if (!respondentName || typeof respondentName !== 'string') {
+            return NextResponse.json({ error: "Respondent name is required" }, { status: 400 });
+        }
+        if (!scores || typeof scores !== 'object') {
+            return NextResponse.json({ error: "Scores are required" }, { status: 400 });
+        }
+        if (!answers || typeof answers !== 'object') {
+            return NextResponse.json({ error: "Answers are required" }, { status: 400 });
+        }
+
         // 1. Verify Invite Code
         const invite = await prisma.invite.findUnique({
             where: { code: inviteCode }

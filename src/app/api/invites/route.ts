@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 // Helper to generate random code
@@ -12,7 +14,14 @@ function generateCode(length = 6) {
 }
 
 export async function POST(req: Request) {
-    const userId = "1"; // Mock ID
+    // Get user ID from session
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
 
     try {
         const code = generateCode();

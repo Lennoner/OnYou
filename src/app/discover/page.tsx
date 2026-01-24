@@ -12,28 +12,29 @@ export default function DiscoverPage() {
     const [analysisData, setAnalysisData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    React.useEffect(() => {
-        const checkSurvey = async () => {
-            try {
-                const res = await fetch('/api/discover');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.exists) {
-                        setAnalysisData({
-                            radarData: data.radarData,
-                            answers: data.answers
-                        });
-                        setMode("report");
-                    }
+    const checkSurvey = React.useCallback(async () => {
+        try {
+            const res = await fetch('/api/discover');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.exists) {
+                    setAnalysisData({
+                        radarData: data.radarData,
+                        answers: data.answers
+                    });
+                    setMode("report");
                 }
-            } catch (e) {
-                console.error(e);
-            } finally {
-                setIsLoading(false);
             }
-        };
-        checkSurvey();
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
+
+    React.useEffect(() => {
+        checkSurvey();
+    }, [checkSurvey]);
 
     if (isLoading) {
         return (
@@ -54,9 +55,9 @@ export default function DiscoverPage() {
                         exit={{ opacity: 0, y: -20 }}
                         className="h-full overflow-y-auto"
                     >
-                        <SelfSurvey onComplete={(radarResult) => {
-                            // Reload to fetch full data including answers
-                            window.location.reload();
+                        <SelfSurvey onComplete={async (radarResult) => {
+                            // Fetch updated data after survey completion
+                            await checkSurvey();
                         }} />
                     </motion.div>
                 ) : (

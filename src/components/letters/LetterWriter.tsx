@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Plus, Mail, Heart, Sparkles, Coffee, Sun, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 // Mock Templates to lower the burden of writing
 const templates = [
@@ -49,10 +50,10 @@ export function LetterWriter() {
 
             // Success UI
             setStep("sent");
+            toast.success("메시지가 성공적으로 전송되었습니다!");
         } catch (error) {
             console.error(error);
-            // In real app, show toast error
-            alert("메시지 전송에 실패했습니다.");
+            toast.error("메시지 전송에 실패했습니다.");
         }
     };
 

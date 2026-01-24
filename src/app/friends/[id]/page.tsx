@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, MessageSquare, Send, Sparkles, User, Calendar } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 interface HistoryItem {
     id: string;
@@ -97,7 +98,7 @@ export default function FriendDetailPage({ params }: { params: { id: string } })
                 {/* Actions Grid */}
                 <div className="p-6 grid grid-cols-3 gap-3 border-b border-stone-100 bg-stone-50">
                     <button
-                        onClick={() => alert("준비 중: 친구에게 피드백 요청 알림 보내기")}
+                        onClick={() => toast.info("준비 중: 친구에게 피드백 요청 알림 보내기")}
                         className="flex flex-col items-center justify-center gap-2 py-4 rounded-xl bg-white border border-stone-200 text-stone-600 font-bold hover:bg-stone-50 hover:border-stone-300 transition-all shadow-sm"
                     >
                         <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 mb-1">
