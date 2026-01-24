@@ -4,12 +4,13 @@ import React, { useState } from "react";
 import { SelfSurvey } from "@/components/discover/SelfSurvey";
 import { AnalysisResult } from "@/components/discover/AnalysisResult";
 import { motion, AnimatePresence } from "framer-motion";
+import type { AnalysisData } from "@/types";
 
 type DiscoverMode = "report" | "survey";
 
 export default function DiscoverPage() {
     const [mode, setMode] = useState<DiscoverMode>("survey");
-    const [analysisData, setAnalysisData] = useState<any>(null);
+    const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const checkSurvey = React.useCallback(async () => {

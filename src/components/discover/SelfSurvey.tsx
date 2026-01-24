@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ArrowLeft, Check, Sparkles, Clock, Calendar, Rocket, Activity, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { RadarDataItem, SurveyAnswers } from "@/types";
 
 type Section = "BASIC" | "PAST" | "PRESENT" | "FUTURE";
 type QuestionType = "SCALE" | "MULTIPLE_CHOICE" | "TEXT";
@@ -114,14 +115,14 @@ const questions: Question[] = [
 ];
 
 interface SelfSurveyProps {
-    onComplete?: (data?: any) => void;
+    onComplete?: (data?: RadarDataItem[]) => void;
 }
 
 export function SelfSurvey({ onComplete }: SelfSurveyProps) {
     const [currentStep, setCurrentStep] = useState(0);
-    const [answers, setAnswers] = useState<Record<string, any>>({});
+    const [answers, setAnswers] = useState<SurveyAnswers>({});
     const [isCompleted, setIsCompleted] = useState(false);
-    const [resultData, setResultData] = useState<any>(null);
+    const [resultData, setResultData] = useState<RadarDataItem[] | null>(null);
 
     const currentQuestion = questions[currentStep];
     const progress = ((currentStep + 1) / questions.length) * 100;
@@ -155,7 +156,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
         }
     };
 
-    const updateAnswer = (value: any) => {
+    const updateAnswer = (value: string | number) => {
         setAnswers(prev => ({
             ...prev,
             [currentQuestion.id]: value

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import type { RadarDataItem, SurveyAnswers, SurveyScores, PeerTextAnswer, PeerAnswers } from "@/types";
 
 export async function POST(req: Request) {
     // Get user ID from session
@@ -80,11 +81,11 @@ export async function GET(req: Request) {
         }
 
         // Parse JSON with error handling
-        let radarData;
-        let selfAnswers;
+        let radarData: RadarDataItem[];
+        let selfAnswers: SurveyAnswers;
         try {
-            radarData = JSON.parse(selfResponse.radarData as string);
-            selfAnswers = selfResponse.answers ? JSON.parse(selfResponse.answers) : {};
+            radarData = JSON.parse(selfResponse.radarData as string) as RadarDataItem[];
+            selfAnswers = selfResponse.answers ? JSON.parse(selfResponse.answers) as SurveyAnswers : {};
         } catch (parseError) {
             console.error("Failed to parse survey data:", parseError);
             return NextResponse.json({ error: "Corrupted survey data" }, { status: 500 });
@@ -96,10 +97,10 @@ export async function GET(req: Request) {
             orderBy: { createdAt: 'desc' }
         });
 
-        const peerAnswers = {
-            q1: [] as any[], // Energy
-            q2: [] as any[], // Thanks
-            q3: [] as any[]  // Challenge
+        const peerAnswers: PeerAnswers = {
+            q1: [], // Energy
+            q2: [], // Thanks
+            q3: []  // Challenge
         };
 
         if (peerFeedbacks.length > 0) {
@@ -111,8 +112,8 @@ export async function GET(req: Request) {
 
             peerFeedbacks.forEach(pf => {
                 try {
-                    const scores = JSON.parse(pf.scores);
-                    const answers = JSON.parse(pf.answers);
+                    const scores = JSON.parse(pf.scores) as SurveyScores;
+                    const answers = JSON.parse(pf.answers) as SurveyAnswers;
                     const name = pf.respondentName || '친구';
 
                     // Map Scores (Note: IDs must match FriendSurvey questions)
@@ -135,7 +136,7 @@ export async function GET(req: Request) {
             });
 
             // Update Radar Data B (Peer)
-            radarData = radarData.map((item: any) => {
+            radarData = radarData.map((item): RadarDataItem => {
                 let peerScore = 0;
                 switch (item.subject) {
                     case '회복탄력성': peerScore = totals.recovery / counts; break;
@@ -149,7 +150,7 @@ export async function GET(req: Request) {
             });
         } else {
             // No peer data yet, set B to 0 or null
-            radarData = radarData.map((item: any) => ({ ...item, B: 0 }));
+            radarData = radarData.map((item): RadarDataItem => ({ ...item, B: 0 }));
         }
 
         return NextResponse.json({

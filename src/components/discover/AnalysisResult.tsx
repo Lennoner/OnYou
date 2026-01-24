@@ -6,6 +6,7 @@ import {
     ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip
 } from "recharts";
 import { Quote, Download, Heart, MessageSquare, RefreshCcw, Info } from "lucide-react";
+import type { AnalysisData, PeerTextAnswer } from "@/types";
 
 // Mock Data: Radar Chart
 const radarData = [
@@ -76,16 +77,7 @@ const feedbackGroups = [
 
 interface AnalysisResultProps {
     onRetake?: () => void;
-    data?: {
-        radarData: any[];
-        answers?: Record<string, any>;
-        peerAnswers?: {
-            q1: any[];
-            q2: any[];
-            q3: any[];
-        };
-        peerCount?: number;
-    };
+    data?: AnalysisData;
 }
 
 export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
@@ -98,7 +90,7 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
         {
             id: "q1",
             question: "이 친구가 가장 에너지가 넘치거나 반짝였던 순간은 언제인가요?",
-            answers: data.peerAnswers.q1.map((a: any) => ({
+            answers: data.peerAnswers.q1.map((a: PeerTextAnswer) => ({
                 text: a.text,
                 author: a.author,
                 relation: "친구"
@@ -107,7 +99,7 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
         {
             id: "q2",
             question: "이 친구에게 고맙다고 말하고 싶거나, 이 친구를 찾게 되는 구체적인 이유는?",
-            answers: data.peerAnswers.q2.map((a: any) => ({
+            answers: data.peerAnswers.q2.map((a: PeerTextAnswer) => ({
                 text: a.text,
                 author: a.author,
                 relation: "친구"
@@ -116,7 +108,7 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
         {
             id: "q3",
             question: "이 친구가 두려움 없이 도전했으면 하는 것은 무엇인가요?",
-            answers: data.peerAnswers.q3.map((a: any) => ({
+            answers: data.peerAnswers.q3.map((a: PeerTextAnswer) => ({
                 text: a.text,
                 author: a.author,
                 relation: "친구"

@@ -2,17 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-
-// Types
-interface FriendNode {
-    id: string;
-    name: string;
-    avatar: string;
-    relation: string;
-    closeness: number;
-    status: "online" | "offline";
-    lastInteraction: string;
-}
+import type { FriendNode } from "@/types";
 
 // Mock Data
 const ME = {
@@ -39,13 +29,13 @@ export function ConnectionMap() {
             }
             const data = await res.json();
 
-            const nodes: FriendNode[] = data.map((f: any) => ({
+            const nodes: FriendNode[] = (data as FriendNode[]).map((f) => ({
                 id: f.id,
                 name: f.name,
                 avatar: f.avatar,
                 relation: f.relation,
                 closeness: f.closeness || 50,
-                status: "offline", // TODO: Implement real-time status tracking
+                status: f.status || "offline", // TODO: Implement real-time status tracking
                 lastInteraction: f.lastInteraction || "Recently",
             }));
 
