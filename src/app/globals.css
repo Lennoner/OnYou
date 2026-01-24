@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base Styles for OnYou (Minimalist Vibe) */
+:root {
+    --background: #FDFCF8;
+    --foreground: #1C1917;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--foreground);
+    /* font-family config is handled by Tailwind config via classes, but setting default here is good */
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #E7E5E4;
+    border-radius: 20px;
+}
