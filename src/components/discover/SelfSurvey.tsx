@@ -138,14 +138,19 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ answers })
                 });
-                if (res.ok) {
-                    const data = await res.json();
-                    setResultData(data.radarData); // Store result
+
+                const result = await res.json();
+
+                if (result.success) {
+                    setResultData(result.data.radarData);
                     setIsCompleted(true);
+                } else {
+                    console.error('Failed to save survey:', result.error?.message);
+                    setIsCompleted(true); // Still show completion screen
                 }
             } catch (e) {
                 console.error(e);
-                setIsCompleted(true); // Fallback to show completion screen even if save fails (for now)
+                setIsCompleted(true); // Fallback to show completion screen even if save fails
             }
         }
     };

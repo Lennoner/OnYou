@@ -16,15 +16,14 @@ export default function DiscoverPage() {
     const checkSurvey = React.useCallback(async () => {
         try {
             const res = await fetch('/api/discover');
-            if (res.ok) {
-                const data = await res.json();
-                if (data.exists) {
-                    setAnalysisData({
-                        radarData: data.radarData,
-                        answers: data.answers
-                    });
-                    setMode("report");
-                }
+            const result = await res.json();
+
+            if (result.success && result.data.exists) {
+                setAnalysisData({
+                    radarData: result.data.radarData,
+                    answers: result.data.answers
+                });
+                setMode("report");
             }
         } catch (e) {
             console.error(e);

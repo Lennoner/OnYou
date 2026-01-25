@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { successResponse, ApiErrors } from "@/lib/api-response";
+import { validateSurveyAnswers, checkRateLimit } from "@/lib/validation";
 import type { RadarDataItem, SurveyAnswers, SurveyScores, PeerTextAnswer, PeerAnswers } from "@/types";
 
 export async function POST(req: Request) {
@@ -9,18 +10,24 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        return ApiErrors.unauthorized();
     }
 
     const userId = session.user.id;
+
+    // Rate limiting
+    const rateLimit = checkRateLimit(`survey:${userId}`, 10, 60000); // 10 requests per minute
+    if (!rateLimit.allowed) {
+        return ApiErrors.tooManyRequests("Too many survey submissions. Please try again later.");
+    }
 
     try {
         const body = await req.json();
         const { answers } = body;
 
-        // Validate required fields
-        if (!answers || typeof answers !== 'object') {
-            return NextResponse.json({ error: "Answers are required" }, { status: 400 });
+        // Validate answers
+        if (!validateSurveyAnswers(answers)) {
+            return ApiErrors.validationError("Invalid survey answers format");
         }
 
         // Simple Algorithm to map answers to Radar Dimensions
@@ -51,11 +58,14 @@ export async function POST(req: Request) {
             }
         });
 
-        return NextResponse.json({ success: true, radarData });
+        return successResponse(
+            { radarData },
+            "Survey submitted successfully"
+        );
 
     } catch (error) {
         console.error("Failed to save survey:", error);
-        return NextResponse.json({ error: "Failed to save survey" }, { status: 500 });
+        return ApiErrors.internalError("Failed to save survey");
     }
 }
 
@@ -64,7 +74,7 @@ export async function GET(req: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        return ApiErrors.unauthorized();
     }
 
     const userId = session.user.id;
@@ -77,7 +87,7 @@ export async function GET(req: Request) {
         });
 
         if (!selfResponse) {
-            return NextResponse.json({ exists: false });
+            return successResponse({ exists: false });
         }
 
         // Parse JSON with error handling
@@ -88,7 +98,7 @@ export async function GET(req: Request) {
             selfAnswers = selfResponse.answers ? JSON.parse(selfResponse.answers) as SurveyAnswers : {};
         } catch (parseError) {
             console.error("Failed to parse survey data:", parseError);
-            return NextResponse.json({ error: "Corrupted survey data" }, { status: 500 });
+            return ApiErrors.internalError("Corrupted survey data");
         }
 
         // 2. Fetch Peer Feedbacks
@@ -153,17 +163,17 @@ export async function GET(req: Request) {
             radarData = radarData.map((item): RadarDataItem => ({ ...item, B: 0 }));
         }
 
-        return NextResponse.json({
+        return successResponse({
             exists: true,
             radarData,
             answers: selfAnswers,
-            peerAnswers, // New field
+            peerAnswers,
             peerCount: peerFeedbacks.length,
             createdAt: selfResponse.createdAt
         });
 
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: "Failed to fetch survey" }, { status: 500 });
+        return ApiErrors.internalError("Failed to fetch survey");
     }
 }
