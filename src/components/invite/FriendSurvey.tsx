@@ -84,11 +84,17 @@ export function FriendSurvey() {
                 })
             });
 
-            if (!res.ok) throw new Error("Failed");
+            const result = await res.json();
+
+            if (!result.success) {
+                throw new Error(result.error?.message || "Failed to submit feedback");
+            }
+
             setIsFinished(true);
             toast.success("전송되었습니다!");
         } catch (e) {
-            toast.error("전송 실패");
+            const errorMessage = e instanceof Error ? e.message : "전송 실패";
+            toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);
         }

@@ -24,12 +24,13 @@ export function ConnectionMap() {
             setError(null);
 
             const res = await fetch('/api/friends');
-            if (!res.ok) {
-                throw new Error(`Failed to fetch friends: ${res.status} ${res.statusText}`);
-            }
-            const data = await res.json();
+            const result = await res.json();
 
-            const nodes: FriendNode[] = (data as FriendNode[]).map((f) => ({
+            if (!result.success) {
+                throw new Error(result.error?.message || 'Failed to fetch friends');
+            }
+
+            const nodes: FriendNode[] = (result.data as FriendNode[]).map((f) => ({
                 id: f.id,
                 name: f.name,
                 avatar: f.avatar,

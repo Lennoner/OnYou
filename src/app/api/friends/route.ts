@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { successResponse, ApiErrors } from "@/lib/api-response";
 
 export async function GET(req: Request) {
     // Get user ID from session
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        return ApiErrors.unauthorized();
     }
 
     const userId = session.user.id;
@@ -67,9 +67,9 @@ export async function GET(req: Request) {
         // 5. Merge
         const allFriends = [...realFriends, ...guestFriends];
 
-        return NextResponse.json(allFriends);
+        return successResponse(allFriends);
     } catch (error) {
         console.error("Failed to fetch friends:", error);
-        return NextResponse.json({ error: "Failed to fetch friends" }, { status: 500 });
+        return ApiErrors.internalError("Failed to fetch friends");
     }
 }
