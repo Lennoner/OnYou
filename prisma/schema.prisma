@@ -25,6 +25,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -33,6 +34,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
@@ -53,11 +56,12 @@ model User {
   surveys       SurveyResponse[]
   sentLetters   Letter[] @relation("SentLetters")
   receivedLetters Letter[] @relation("ReceivedLetters")
-  
+  invites       Invite[]
+
   // Friends Graph (ManyToMany with Metadata via FriendConnection)
   friends       FriendConnection[] @relation("UserFriends")
   friendOf      FriendConnection[] @relation("FriendOfUser")
-  
+
   peerFeedbacks PeerFeedback[]
 }
 
@@ -79,66 +83,85 @@ model FriendConnection {
   tags      String?  // JSON string e.g. ["funny", "smart"]
   closeness Int      @default(0) // 0-100
   createdAt DateTime @default(now())
-  
+
   user      User     @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
   friend    User     @relation("FriendOfUser", fields: [friendId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, friendId])
+  @@index([userId])
+  @@index([friendId])
+  @@index([closeness])
 }
 
 model SurveyResponse {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Radar data stored as JSON
   // e.g. { "resilience": 4, "passion": 5, ... }
   radarData String
-  
+
   // Raw answers stored as JSON
   answers   String? @default("{}")
-  
+
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Letter {
   id        String   @id @default(cuid())
   senderId  String
   receiverId String? // Can be null if sending to non-user (by email/link)
-  
+
   content   String
   template  String? // "thankyou", "cheerup", etc.
   isRead    Boolean  @default(false)
-  
+
   sender    User     @relation("SentLetters", fields: [senderId], references: [id], onDelete: Cascade)
   receiver  User?    @relation("ReceivedLetters", fields: [receiverId], references: [id])
-  
+
   createdAt DateTime @default(now())
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([isRead])
+  @@index([createdAt])
 }
 
 model Invite {
   id        String   @id @default(cuid())
   code      String   @unique
   creatorId String
-  
+
   usedCount Int      @default(0)
   maxUses   Int      @default(100)
   expiresAt DateTime?
-  
+
+  creator   User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@index([creatorId])
+  @@index([code])
+  @@index([expiresAt])
 }
 
 model PeerFeedback {
   id             String   @id @default(cuid())
   userId         String   // The user receiving feedback
   respondentName String
-  
+
   // Storing scores e.g. { "resilience": 4, "pride": 5 }
-  scores         String   
-  
+  scores         String
+
   // Storing text answers e.g. { "q1": "Great leader...", "q2": "..." }
-  answers        String   
-  
+  answers        String
+
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
 }
