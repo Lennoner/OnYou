@@ -126,9 +126,9 @@ export async function GET(req: Request) {
                     totals.growth += (scores['future2'] || 0);
 
                     // Collect Text
-                    if (answers['past-text']) peerAnswers.q1.push({ text: answers['past-text'], author: name });
-                    if (answers['present-text']) peerAnswers.q2.push({ text: answers['present-text'], author: name });
-                    if (answers['future-text']) peerAnswers.q3.push({ text: answers['future-text'], author: name });
+                    if (answers['past-text']) peerAnswers.q1.push({ text: String(answers['past-text']), author: name });
+                    if (answers['present-text']) peerAnswers.q2.push({ text: String(answers['present-text']), author: name });
+                    if (answers['future-text']) peerAnswers.q3.push({ text: String(answers['future-text']), author: name });
                 } catch (parseError) {
                     console.error("Failed to parse peer feedback:", pf.id, parseError);
                     // Skip this feedback if parsing fails

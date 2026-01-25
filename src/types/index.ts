@@ -8,7 +8,7 @@ export interface RadarDataItem {
 }
 
 export interface SurveyAnswers {
-    [key: string]: string | number;
+    [key: string]: string | number | string[];
 }
 
 export interface SurveyScores {

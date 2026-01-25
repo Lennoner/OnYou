@@ -156,7 +156,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
         }
     };
 
-    const updateAnswer = (value: string | number) => {
+    const updateAnswer = (value: string | number | string[]) => {
         setAnswers(prev => ({
             ...prev,
             [currentQuestion.id]: value
@@ -171,17 +171,18 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
     };
 
     const updateMultipleChoice = (option: string) => {
-        const current = answers[currentQuestion.id] || [];
-        const updated = current.includes(option)
-            ? current.filter((item: string) => item !== option)
-            : [...current, option];
+        const current = answers[currentQuestion.id];
+        const currentArray = Array.isArray(current) ? current : [];
+        const updated = currentArray.includes(option)
+            ? currentArray.filter((item: string) => item !== option)
+            : [...currentArray, option];
         updateAnswer(updated);
     };
 
     const isCurrentStepValid = () => {
         const answer = answers[currentQuestion.id];
         if (currentQuestion.type === "MULTIPLE_CHOICE") {
-            return answer && answer.length > 0;
+            return Array.isArray(answer) && answer.length > 0;
         }
         return answer !== undefined && answer !== "";
     };
@@ -316,23 +317,29 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                         {/* Multiple Choice Input */}
                         {currentQuestion.type === "MULTIPLE_CHOICE" && (
                             <div className="space-y-3">
-                                {currentQuestion.options?.map((option) => (
-                                    <button
-                                        key={option}
-                                        onClick={() => updateMultipleChoice(option)}
-                                        className={cn(
-                                            "w-full p-4 rounded-xl text-left font-medium transition-all flex items-center justify-between",
-                                            (answers[currentQuestion.id] || []).includes(option)
-                                                ? "bg-amber-50 text-amber-700 border-2 border-amber-500"
-                                                : "bg-stone-50 text-stone-600 border-2 border-transparent hover:bg-stone-100"
-                                        )}
-                                    >
-                                        {option}
-                                        {(answers[currentQuestion.id] || []).includes(option) && (
-                                            <Check size={20} className="text-amber-500" />
-                                        )}
-                                    </button>
-                                ))}
+                                {currentQuestion.options?.map((option) => {
+                                    const currentAnswer = answers[currentQuestion.id];
+                                    const selectedOptions = Array.isArray(currentAnswer) ? currentAnswer : [];
+                                    const isSelected = selectedOptions.includes(option);
+
+                                    return (
+                                        <button
+                                            key={option}
+                                            onClick={() => updateMultipleChoice(option)}
+                                            className={cn(
+                                                "w-full p-4 rounded-xl text-left font-medium transition-all flex items-center justify-between",
+                                                isSelected
+                                                    ? "bg-amber-50 text-amber-700 border-2 border-amber-500"
+                                                    : "bg-stone-50 text-stone-600 border-2 border-transparent hover:bg-stone-100"
+                                            )}
+                                        >
+                                            {option}
+                                            {isSelected && (
+                                                <Check size={20} className="text-amber-500" />
+                                            )}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         )}
 
