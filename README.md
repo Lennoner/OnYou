@@ -15,11 +15,12 @@ OnYou is a Next.js-based self-discovery platform that helps users understand the
 
 - **Framework**: Next.js 14.1.0 (App Router)
 - **Language**: TypeScript 5
-- **Database**: SQLite with Prisma ORM
+- **Database**: PostgreSQL (Supabase) with Prisma ORM
 - **Authentication**: NextAuth.js
 - **Styling**: Tailwind CSS
 - **UI Components**: Framer Motion, Recharts
 - **Notifications**: Sonner (toast notifications)
+- **Hosting**: Vercel
 
 ## Getting Started
 
@@ -186,6 +187,31 @@ See [__tests__/README.md](__tests__/README.md) for testing guide.
 - Input validation utilities (`validateScores`, `validateSurveyAnswers`, etc.)
 - Centralized error handling with ApiErrors helpers
 - Database performance optimization with strategic indexes
+
+## Deployment
+
+### Vercel (Recommended)
+
+This project is optimized for Vercel deployment. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+
+**Quick Start:**
+
+1. Push code to GitHub
+2. Import project on [Vercel](https://vercel.com)
+3. Set environment variables:
+   - `DATABASE_URL` (from Supabase)
+   - `NEXTAUTH_URL` (your Vercel domain)
+   - `NEXTAUTH_SECRET` (generate with `openssl rand -base64 32`)
+4. Deploy!
+
+**Environment Variables Required:**
+```bash
+DATABASE_URL="postgresql://..."
+NEXTAUTH_URL="https://your-domain.vercel.app"
+NEXTAUTH_SECRET="your-generated-secret"
+```
+
+For complete deployment guide, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## Contributing
 
