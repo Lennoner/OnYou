@@ -1,9 +1,17 @@
-import { NextResponse } from 'next/server';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { successResponse, ApiErrors } from "@/lib/api-response";
 
 export async function GET(req: Request) {
-    // Use mock ID for dev
-    const userId = "1";
+    // Get user ID from session
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+        return ApiErrors.unauthorized();
+    }
+
+    const userId = session.user.id;
 
     try {
         const user = await prisma.user.findUnique({
@@ -16,15 +24,14 @@ export async function GET(req: Request) {
                         surveys: true
                     }
                 },
-                // We could also fetch recent letters or surveys here
             }
         });
 
         if (!user) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
+            return ApiErrors.notFound("User not found");
         }
 
-        return NextResponse.json({
+        return successResponse({
             id: user.id,
             name: user.name,
             email: user.email,
@@ -37,6 +44,6 @@ export async function GET(req: Request) {
         });
     } catch (error) {
         console.error("Failed to fetch user:", error);
-        return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
+        return ApiErrors.internalError("Failed to fetch user");
     }
 }

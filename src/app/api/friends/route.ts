@@ -1,16 +1,17 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { GET as authRoute } from "../auth/[...nextauth]/route";
-
-// Helper to get session (since we can't import authOptions easily if not exported, 
-// but we exported the handler. We might need to refactor authOptions to be shared 
-// if getServerSession requires it. 
-// Actually, in App Router, we can use a slightly different pattern or just use the handler's config if extracted.
-// For now, let's try a simpler approach since we are using the Mock Provider which puts user in session.
+import { successResponse, ApiErrors } from "@/lib/api-response";
 
 export async function GET(req: Request) {
-    const userId = "1"; // Mock ID
+    // Get user ID from session
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+        return ApiErrors.unauthorized();
+    }
+
+    const userId = session.user.id;
 
     try {
         // 1. Fetch Registered Connections
@@ -26,16 +27,28 @@ export async function GET(req: Request) {
         });
 
         // 3. Format Real Friends
-        const realFriends = connections.map(f => ({
-            id: f.friend.id,
-            name: f.friend.name,
-            avatar: f.friend.image || "/placeholder-user.jpg",
-            relation: f.relation,
-            tags: f.tags ? JSON.parse(f.tags) : [],
-            closeness: f.closeness,
-            lastInteraction: "최근",
-            type: "USER"
-        }));
+        const realFriends = connections.map(f => {
+            let tags = [];
+            if (f.tags) {
+                try {
+                    tags = JSON.parse(f.tags);
+                } catch (parseError) {
+                    console.error("Failed to parse tags for friend:", f.id, parseError);
+                    tags = []; // Use empty array if parsing fails
+                }
+            }
+
+            return {
+                id: f.friend.id,
+                name: f.friend.name,
+                avatar: f.friend.image || "/placeholder-user.jpg",
+                relation: f.relation,
+                tags,
+                closeness: f.closeness,
+                lastInteraction: "최근",
+                type: "USER"
+            };
+        });
 
         // 4. Format Guests
         // Group by respondentName to avoid duplicates if same guest answered multiple times?
@@ -54,9 +67,9 @@ export async function GET(req: Request) {
         // 5. Merge
         const allFriends = [...realFriends, ...guestFriends];
 
-        return NextResponse.json(allFriends);
+        return successResponse(allFriends);
     } catch (error) {
         console.error("Failed to fetch friends:", error);
-        return NextResponse.json({ error: "Failed to fetch friends" }, { status: 500 });
+        return ApiErrors.internalError("Failed to fetch friends");
     }
 }

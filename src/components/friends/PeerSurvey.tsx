@@ -30,11 +30,14 @@ export function PeerSurvey() {
         const fetchFriends = async () => {
             try {
                 const res = await fetch('/api/friends');
-                if (!res.ok) throw new Error('Failed');
-                const data = await res.json();
+                const result = await res.json();
+
+                if (!result.success) {
+                    throw new Error(result.error?.message || 'Failed to fetch friends');
+                }
 
                 // Add color logic client-side purely for UI flavor
-                const coloredData = data.map((f: any, i: number) => ({
+                const coloredData = result.data.map((f: any, i: number) => ({
                     ...f,
                     color: ["bg-blue-50 text-blue-600", "bg-purple-50 text-purple-600", "bg-orange-50 text-orange-600", "bg-rose-50 text-rose-600", "bg-teal-50 text-teal-600"][i % 5]
                 }));

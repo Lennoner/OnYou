@@ -4,36 +4,37 @@ import React, { useState } from "react";
 import { SelfSurvey } from "@/components/discover/SelfSurvey";
 import { AnalysisResult } from "@/components/discover/AnalysisResult";
 import { motion, AnimatePresence } from "framer-motion";
+import type { AnalysisData } from "@/types";
 
 type DiscoverMode = "report" | "survey";
 
 export default function DiscoverPage() {
     const [mode, setMode] = useState<DiscoverMode>("survey");
-    const [analysisData, setAnalysisData] = useState<any>(null);
+    const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    React.useEffect(() => {
-        const checkSurvey = async () => {
-            try {
-                const res = await fetch('/api/discover');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.exists) {
-                        setAnalysisData({
-                            radarData: data.radarData,
-                            answers: data.answers
-                        });
-                        setMode("report");
-                    }
-                }
-            } catch (e) {
-                console.error(e);
-            } finally {
-                setIsLoading(false);
+    const checkSurvey = React.useCallback(async () => {
+        try {
+            const res = await fetch('/api/discover');
+            const result = await res.json();
+
+            if (result.success && result.data.exists) {
+                setAnalysisData({
+                    radarData: result.data.radarData,
+                    answers: result.data.answers
+                });
+                setMode("report");
             }
-        };
-        checkSurvey();
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
+
+    React.useEffect(() => {
+        checkSurvey();
+    }, [checkSurvey]);
 
     if (isLoading) {
         return (
@@ -54,9 +55,9 @@ export default function DiscoverPage() {
                         exit={{ opacity: 0, y: -20 }}
                         className="h-full overflow-y-auto"
                     >
-                        <SelfSurvey onComplete={(radarResult) => {
-                            // Reload to fetch full data including answers
-                            window.location.reload();
+                        <SelfSurvey onComplete={async (radarResult) => {
+                            // Fetch updated data after survey completion
+                            await checkSurvey();
                         }} />
                     </motion.div>
                 ) : (
