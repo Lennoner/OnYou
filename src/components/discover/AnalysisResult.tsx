@@ -271,7 +271,7 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
                                     </h3>
                                     <div className="flex-1">
                                         <p className="text-stone-800 font-medium leading-relaxed whitespace-pre-wrap text-lg font-serif">
-                                            "{answerText}"
+                                            &quot;{answerText}&quot;
                                         </p>
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-stone-100 flex justify-end">

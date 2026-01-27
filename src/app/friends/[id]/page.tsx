@@ -140,7 +140,7 @@ export default function FriendDetailPage({ params }: { params: { id: string } })
                                         <span className="text-xs text-stone-400">{item.date}</span>
                                     </div>
                                     <div className="bg-stone-50 p-4 rounded-xl text-sm text-stone-600 leading-relaxed hover:bg-stone-100 transition-colors cursor-pointer">
-                                        "{item.content}"
+                                        &quot;{item.content}&quot;
                                     </div>
                                     <div className="mt-1 text-xs text-stone-400 font-medium text-right">
                                         {item.direction === 'RECEIVED' ? 'From Friend' : 'To Friend'}
