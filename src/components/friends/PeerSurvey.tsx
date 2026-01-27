@@ -2,18 +2,6 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-    Search,
-    UserPlus,
-    Sparkles,
-    Send,
-    MoreHorizontal,
-    Heart,
-    Share2,
-    Copy,
-    CheckCircle2,
-    ChevronRight
-} from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -103,7 +91,7 @@ export function PeerSurvey() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10 transition-all font-medium"
                     />
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400">🔍</span>
                 </div>
             </div>
 
@@ -121,7 +109,7 @@ export function PeerSurvey() {
 
                 <div className="relative z-10">
                     <h2 className="text-2xl font-serif mb-2 flex items-center gap-2">
-                        <Sparkles size={24} className="text-yellow-400" />
+                        <span className="text-yellow-400">✨</span>
                         새로운 별을 발견하세요
                     </h2>
                     <p className="text-stone-400 text-sm max-w-md leading-relaxed">
@@ -135,11 +123,11 @@ export function PeerSurvey() {
                         onClick={handleCopyLink}
                         className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white text-stone-900 px-6 py-3 rounded-full font-bold text-sm hover:bg-stone-100 transition-colors active:scale-95"
                     >
-                        {copied ? <CheckCircle2 size={18} className="text-green-600" /> : <Copy size={18} />}
+                        {copied ? <span className="text-green-600">✅</span> : <span>📋</span>}
                         {copied ? "복사 완료!" : "초대 링크 복사"}
                     </button>
                     <button className="p-3 rounded-full border border-white/20 hover:bg-white/10 transition-colors text-white">
-                        <Share2 size={20} />
+                        <span>📤</span>
                     </button>
                 </div>
             </motion.div>
@@ -186,7 +174,7 @@ export function PeerSurvey() {
                                         </div>
                                     </div>
                                     <button className="text-stone-300 hover:text-stone-600 transition-colors">
-                                        <MoreHorizontal size={20} />
+                                        <span>⋯</span>
                                     </button>
                                 </div>
 
@@ -203,7 +191,7 @@ export function PeerSurvey() {
                                 <div className="mt-auto pt-4 border-t border-stone-50 flex items-center justify-between text-xs text-stone-400 font-medium">
                                     <span>마지막 교류: {friend.lastInteraction}</span>
                                     <span className="flex items-center gap-1 group-hover:text-amber-500 transition-colors">
-                                        상세보기 <ChevronRight size={12} />
+                                        상세보기 <span className="text-[10px]">›</span>
                                     </span>
                                 </div>
                             </motion.div>
@@ -217,8 +205,8 @@ export function PeerSurvey() {
                             className="border-2 border-dashed border-stone-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-4 min-h-[240px] hover:bg-stone-50/50 hover:border-stone-300 transition-all cursor-pointer group"
                             onClick={handleCopyLink}
                         >
-                            <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 group-hover:scale-110 transition-transform duration-300">
-                                <UserPlus size={28} />
+                            <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 group-hover:scale-110 transition-transform duration-300 text-2xl">
+                                ➕
                             </div>
                             <div>
                                 <h3 className="font-bold text-stone-500 mb-1">새로운 친구 초대</h3>
@@ -229,7 +217,7 @@ export function PeerSurvey() {
                     </div>
                 ) : (
                     <div className="h-64 flex flex-col items-center justify-center text-stone-400">
-                        <Search size={48} className="mb-4 opacity-20" />
+                        <span className="text-4xl mb-4 opacity-20">🔍</span>
                         <p className="font-medium">검색 결과가 없습니다.</p>
                     </div>
                 )}
@@ -238,4 +226,3 @@ export function PeerSurvey() {
         </div>
     );
 }
-

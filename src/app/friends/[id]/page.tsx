@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, MessageSquare, Send, Sparkles, User, Calendar } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -29,16 +28,8 @@ export default function FriendDetailPage({ params }: { params: { id: string } })
 
     useEffect(() => {
         // Mock Data Fetching for MVP
-        // In real implementation, this would be GET /api/friends/[id]
-        // But since we want to show immediate interaction, let's mock the data based on ID for now,
-        // or actually fetch if we update the API.
-        // Let's implement the API fetch roughly.
-
         async function fetchData() {
             try {
-                // Determine if Guest or User based on ID format or just try to find
-                // For now, we will simulate the data structure users expect.
-
                 // Simulating API delay
                 await new Promise(r => setTimeout(r, 500));
 
@@ -82,8 +73,8 @@ export default function FriendDetailPage({ params }: { params: { id: string } })
 
                 {/* Header */}
                 <div className="bg-stone-900 text-white p-6 relative">
-                    <button onClick={() => router.back()} className="absolute top-6 left-6 hover:opacity-80">
-                        <ArrowLeft />
+                    <button onClick={() => router.back()} className="absolute top-6 left-6 hover:opacity-80 text-xl">
+                        ←
                     </button>
                     <div className="flex flex-col items-center mt-4">
                         <div className="w-20 h-20 bg-stone-700 rounded-full flex items-center justify-center text-2xl font-bold mb-3 border-4 border-stone-800">
@@ -100,8 +91,8 @@ export default function FriendDetailPage({ params }: { params: { id: string } })
                         onClick={() => alert("준비 중: 친구에게 피드백 요청 알림 보내기")}
                         className="flex flex-col items-center justify-center gap-2 py-4 rounded-xl bg-white border border-stone-200 text-stone-600 font-bold hover:bg-stone-50 hover:border-stone-300 transition-all shadow-sm"
                     >
-                        <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 mb-1">
-                            <Sparkles size={20} />
+                        <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 mb-1 text-xl">
+                            ✨
                         </div>
                         <span className="text-xs">피드백 요청</span>
                     </button>
@@ -110,8 +101,8 @@ export default function FriendDetailPage({ params }: { params: { id: string } })
                         href={`/friends/${friend.id}/evaluate`}
                         className="flex flex-col items-center justify-center gap-2 py-4 rounded-xl bg-white border border-stone-200 text-stone-600 font-bold hover:bg-stone-50 hover:border-stone-300 transition-all shadow-sm"
                     >
-                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mb-1">
-                            <MessageSquare size={20} />
+                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mb-1 text-xl">
+                            💬
                         </div>
                         <span className="text-xs">지지적 피드백</span>
                     </Link>
@@ -120,8 +111,8 @@ export default function FriendDetailPage({ params }: { params: { id: string } })
                         href={`/letters?to=${encodeURIComponent(friend.name)}`}
                         className="flex flex-col items-center justify-center gap-2 py-4 rounded-xl bg-white border border-stone-200 text-stone-600 font-bold hover:bg-stone-50 hover:border-stone-300 transition-all shadow-sm"
                     >
-                        <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 mb-1">
-                            <Send size={20} />
+                        <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 mb-1 text-xl">
+                            💌
                         </div>
                         <span className="text-xs">감사 편지</span>
                     </Link>
@@ -130,7 +121,7 @@ export default function FriendDetailPage({ params }: { params: { id: string } })
                 {/* History */}
                 <div className="p-6">
                     <h2 className="font-bold text-stone-900 mb-6 flex items-center gap-2">
-                        <Calendar size={18} /> 히스토리
+                        📅 히스토리
                     </h2>
 
                     <div className="space-y-6">

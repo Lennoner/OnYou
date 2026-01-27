@@ -2,16 +2,15 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Plus, Mail, Heart, Sparkles, Coffee, Sun, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
 // Mock Templates to lower the burden of writing
 const templates = [
-    { id: "t1", icon: Heart, label: "고마워요", text: "오늘 도와줘서 정말 고마워. 네 덕분에 큰 힘이 됐어!", color: "bg-rose-100 text-rose-600" },
-    { id: "t2", icon: Coffee, label: "수고했어", text: "요즘 많이 바쁘지? 항상 열심히 하는 모습 멋지다. 커피 한잔하면서 쉬어가!", color: "bg-amber-100 text-amber-700" },
-    { id: "t3", icon: Sun, label: "응원해", text: "넌 충분히 잘하고 있어. 지금처럼만 하면 다 잘 될 거야. 화이팅!", color: "bg-orange-100 text-orange-600" },
-    { id: "t4", icon: Sparkles, label: "축하해", text: "좋은 소식 들었어! 진심으로 축하해. 앞으로 더 좋은 일만 가득하길 바라.", color: "bg-emerald-100 text-emerald-600" },
+    { id: "t1", icon: "❤️", label: "고마워요", text: "오늘 도와줘서 정말 고마워. 네 덕분에 큰 힘이 됐어!", color: "bg-rose-100 text-rose-600" },
+    { id: "t2", icon: "☕", label: "수고했어", text: "요즘 많이 바쁘지? 항상 열심히 하는 모습 멋지다. 커피 한잔하면서 쉬어가!", color: "bg-amber-100 text-amber-700" },
+    { id: "t3", icon: "☀️", label: "응원해", text: "넌 충분히 잘하고 있어. 지금처럼만 하면 다 잘 될 거야. 화이팅!", color: "bg-orange-100 text-orange-600" },
+    { id: "t4", icon: "✨", label: "축하해", text: "좋은 소식 들었어! 진심으로 축하해. 앞으로 더 좋은 일만 가득하길 바라.", color: "bg-emerald-100 text-emerald-600" },
 ];
 
 // Mock Recent Contacts
@@ -117,7 +116,7 @@ export function LetterWriter() {
                                             </button>
                                         ))}
                                         <button className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 hover:bg-stone-200 transition-colors">
-                                            <Plus size={16} />
+                                            <span>➕</span>
                                         </button>
                                     </div>
                                 </div>
@@ -150,7 +149,7 @@ export function LetterWriter() {
                                                     : "bg-white border-stone-200 text-stone-600 hover:bg-stone-50"
                                             )}
                                         >
-                                            <t.icon size={16} />
+                                            <span className="text-base">{t.icon}</span>
                                             <span className="font-bold text-sm">{t.label}</span>
                                         </button>
                                     ))}
@@ -187,7 +186,7 @@ export function LetterWriter() {
                                         : "bg-stone-900 text-white shadow-xl hover:bg-stone-800"
                                 )}
                             >
-                                마음 보내기 <Send size={20} />
+                                마음 보내기 <span>✉️</span>
                             </button>
 
                         </motion.div>
@@ -200,8 +199,8 @@ export function LetterWriter() {
                             exit={{ opacity: 0, scale: 1.05 }}
                             className="flex flex-col items-center justify-center min-h-[50vh] text-center"
                         >
-                            <div className="w-24 h-24 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mb-8 animate-bounce-slow">
-                                <Mail size={40} />
+                            <div className="w-24 h-24 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mb-8 animate-bounce-slow text-4xl">
+                                📮
                             </div>
                             <h2 className="text-2xl font-bold text-stone-900 mb-2 font-serif">
                                 {recipient}님에게 마음이 배달되었어요!
@@ -214,7 +213,7 @@ export function LetterWriter() {
                                 onClick={handleReset}
                                 className="px-8 py-3 bg-stone-900 text-white rounded-xl font-bold hover:bg-stone-800 transition-colors flex items-center gap-2 mx-auto"
                             >
-                                다른 편지 쓰기 <ChevronRight size={16} />
+                                다른 편지 쓰기 <span>→</span>
                             </button>
                         </motion.div>
                     )}

@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ArrowLeft, Check, Sparkles, Clock, Calendar, Rocket, Activity, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Section = "BASIC" | "PAST" | "PRESENT" | "FUTURE";
@@ -187,10 +186,10 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
 
     const getSectionIcon = (section: Section) => {
         switch (section) {
-            case "BASIC": return <Activity size={18} />;
-            case "PAST": return <Clock size={18} />;
-            case "PRESENT": return <Calendar size={18} />;
-            case "FUTURE": return <Rocket size={18} />;
+            case "BASIC": return "📈";
+            case "PAST": return "🕰️";
+            case "PRESENT": return "📅";
+            case "FUTURE": return "🚀";
         }
     };
 
@@ -209,9 +208,9 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 mb-6"
+                    className="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 mb-6 text-4xl"
                 >
-                    <Sparkles size={40} />
+                    ✨
                 </motion.div>
                 <h2 className="text-3xl font-bold text-stone-900 mb-3">설문이 완료되었습니다!</h2>
                 <p className="text-stone-500 max-w-md mb-8">
@@ -244,7 +243,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                 <div className="flex justify-between items-end mb-4">
                     <div>
                         <span className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-xs font-bold mb-2">
-                            {getSectionIcon(currentQuestion.section)}
+                            <span>{getSectionIcon(currentQuestion.section)}</span>
                             {getSectionLabel(currentQuestion.section)}
                         </span>
                         <h2 className="text-xl font-bold text-stone-900">나의 이야기 기록하기</h2>
@@ -280,7 +279,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                             </h3>
                             {currentQuestion.subtext && (
                                 <div className="flex items-start gap-2 text-stone-500 bg-stone-50 p-3 rounded-lg inline-block">
-                                    <HelpCircle size={16} className="mt-0.5 shrink-0" />
+                                    <span className="mt-0.5 shrink-0 text-sm">💡</span>
                                     <p className="text-sm">{currentQuestion.subtext}</p>
                                 </div>
                             )}
@@ -328,7 +327,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                                     >
                                         {option}
                                         {(answers[currentQuestion.id] || []).includes(option) && (
-                                            <Check size={20} className="text-amber-500" />
+                                            <span className="text-amber-500">✓</span>
                                         )}
                                     </button>
                                 ))}
@@ -360,7 +359,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                             : "text-stone-600 hover:bg-stone-100"
                     )}
                 >
-                    <ArrowLeft size={18} />
+                    <span>←</span>
                     이전
                 </button>
 
@@ -375,7 +374,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                     )}
                 >
                     {currentStep === questions.length - 1 ? "완료하기" : "다음"}
-                    {currentStep === questions.length - 1 ? <Check size={18} /> : <ArrowRight size={18} />}
+                    {currentStep === questions.length - 1 ? <span>✓</span> : <span>→</span>}
                 </button>
             </div>
         </div>

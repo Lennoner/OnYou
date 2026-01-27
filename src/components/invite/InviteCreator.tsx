@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Copy, MessageCircle, Share2, Check, Send, ArrowRight, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -165,7 +164,7 @@ export function InviteCreator() {
                                     isCreating ? "bg-stone-300 text-stone-500" : "bg-stone-900 text-white hover:bg-stone-800"
                                 )}
                             >
-                                {isCreating ? "생성 중..." : "초대장 만들기"} {!isCreating && <ArrowRight size={20} />}
+                                {isCreating ? "생성 중..." : "초대장 만들기"} {!isCreating && <span>→</span>}
                             </button>
                         </motion.div>
                     ) : (
@@ -203,7 +202,7 @@ export function InviteCreator() {
                                         onClick={handleKakaoShare}
                                         className="py-4 bg-[#FEE500] text-[#191919] rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
                                     >
-                                        <MessageCircle size={20} className="fill-[#191919]" /> 카톡 공유
+                                        <span className="text-xl">💬</span> 카톡 공유
                                     </button>
                                     <button
                                         onClick={handleCopy}
@@ -214,7 +213,7 @@ export function InviteCreator() {
                                                 : "bg-white text-stone-700 border-stone-200 hover:bg-stone-50"
                                         )}
                                     >
-                                        {copied ? <Check size={20} /> : <Copy size={20} />}
+                                        {copied ? <span>✅</span> : <span>📋</span>}
                                         {copied ? "복사됨!" : "링크 복사"}
                                     </button>
                                 </div>
@@ -227,7 +226,7 @@ export function InviteCreator() {
                                 }}
                                 className="w-full py-4 text-stone-400 font-bold hover:text-stone-600 flex items-center justify-center gap-2 transition-colors"
                             >
-                                <RefreshCcw size={16} /> 다른 친구 초대하기
+                                <span>🔄</span> 다른 친구 초대하기
                             </button>
                         </motion.div>
                     )}

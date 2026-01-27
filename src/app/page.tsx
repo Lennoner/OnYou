@@ -3,15 +3,6 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-    ArrowUpRight,
-    Sparkles,
-    GitGraph,
-    Mail,
-    Send,
-    Share2,
-    Globe // Add Globe
-} from "lucide-react";
 
 export default function Dashboard() {
     const [user, setUser] = React.useState<{ name: string, stats: { friendCount: number } } | null>(null);
@@ -84,12 +75,12 @@ export default function Dashboard() {
 
                         <div className="relative z-10 flex flex-col h-full justify-between min-h-[240px]">
                             <div className="flex justify-between items-start">
-                                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center text-amber-400 animate-pulse">
-                                    <Sparkles size={24} />
+                                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center text-amber-400 animate-pulse text-2xl">
+                                    ✨
                                 </div>
                                 <div className="flex items-center gap-2 text-stone-400 group-hover:text-white transition-colors">
                                     <span className="text-sm font-bold">확인하기</span>
-                                    <ArrowUpRight size={18} />
+                                    <span className="text-lg">↗</span>
                                 </div>
                             </div>
 
@@ -127,8 +118,8 @@ export default function Dashboard() {
                         className="w-full h-full bg-white border border-stone-200 rounded-3xl p-8 flex flex-col justify-between group cursor-pointer hover:border-stone-900 hover:shadow-lg transition-all"
                     >
                         <div className="flex justify-between items-start">
-                            <div className="w-12 h-12 rounded-2xl bg-stone-50 flex items-center justify-center text-stone-900 group-hover:bg-stone-900 group-hover:text-white transition-colors">
-                                <Share2 size={24} />
+                            <div className="w-12 h-12 rounded-2xl bg-stone-50 flex items-center justify-center text-stone-900 group-hover:bg-stone-900 group-hover:text-white transition-colors text-xl">
+                                📤
                             </div>
                         </div>
 
@@ -156,7 +147,7 @@ export default function Dashboard() {
 
                         <div className="relative z-10">
                             <div className="flex items-center justify-between mb-4">
-                                <GitGraph size={28} className="text-stone-900" />
+                                <span className="text-2xl">🕸️</span>
                                 <span className="text-xs font-bold bg-white px-2 py-1 rounded text-stone-500 shadow-sm">Updated</span>
                             </div>
                             <h3 className="text-xl font-bold text-stone-900">나의 우주</h3>
@@ -181,8 +172,8 @@ export default function Dashboard() {
                         className="w-full h-full bg-white border border-stone-200 rounded-3xl p-8 flex items-center justify-between group cursor-pointer hover:shadow-md transition-all"
                     >
                         <div className="flex items-center gap-6">
-                            <div className="p-4 bg-rose-50 rounded-2xl text-rose-500">
-                                <Mail size={24} />
+                            <div className="p-4 bg-rose-50 rounded-2xl text-rose-500 text-xl">
+                                💌
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold text-stone-900">감사 쪽지</h3>
@@ -190,7 +181,7 @@ export default function Dashboard() {
                             </div>
                         </div>
                         <button className="hidden sm:flex items-center gap-2 px-6 py-3 bg-stone-50 text-stone-900 rounded-xl font-bold text-sm hover:bg-stone-900 hover:text-white transition-colors">
-                            작성하기 <Send size={14} />
+                            작성하기 <span className="text-xs">➡️</span>
                         </button>
                     </motion.div>
                 </Link>

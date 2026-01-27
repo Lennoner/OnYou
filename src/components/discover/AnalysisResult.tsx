@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import {
     ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip
 } from "recharts";
-import { Quote, Download, Heart, MessageSquare, RefreshCcw, Info } from "lucide-react";
 
 // Mock Data: Radar Chart
 const radarData = [
@@ -132,7 +131,7 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
                     onClick={onRetake}
                     className="flex items-center gap-2 px-4 py-2 bg-white border border-stone-200 rounded-full text-xs font-medium text-stone-500 hover:text-stone-900 hover:border-stone-300 transition-colors shadow-sm"
                 >
-                    <RefreshCcw size={14} />
+                    <span>🔄</span>
                     다시 진단하기
                 </button>
             </div>
@@ -227,7 +226,7 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
                         </p>
                         <div className="pt-4">
                             <div className="inline-flex items-center gap-2 px-4 py-2 bg-stone-100 rounded-lg text-stone-600 text-sm font-medium">
-                                <MessageSquare size={16} />
+                                <span>💬</span>
                                 총 {peerCount}개의 마음이 도착했습니다.
                             </div>
                         </div>
@@ -305,7 +304,7 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
                         {/* Left: Concept Explanation */}
                         <div className="flex-1 space-y-6">
                             <div className="flex items-center gap-2 text-amber-400 font-bold uppercase tracking-wider text-xs">
-                                <Info size={14} />
+                                <span>ℹ️</span>
                                 <span>Johari Window Theory</span>
                             </div>
                             <h3 className="text-2xl font-serif font-bold leading-tight">
@@ -389,7 +388,7 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
                                         transition={{ delay: answerIndex * 0.1 }}
                                         className="bg-white p-6 md:p-8 rounded-2xl border border-stone-100 shadow-sm hover:shadow-md transition-all duration-300"
                                     >
-                                        <Quote className="text-stone-100 fill-stone-50 mb-4 transform scale-x-[-1]" size={28} />
+                                        <span className="text-4xl text-stone-100 mb-4 block">❝</span>
                                         <p className="text-stone-700 leading-relaxed font-medium mb-6 min-h-[4rem]">
                                             &quot;{answer.text}&quot;
                                         </p>
@@ -419,11 +418,11 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
 
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
                         <button className="px-8 py-4 bg-stone-900 text-white rounded-xl font-bold hover:bg-stone-800 transition-colors flex items-center justify-center gap-2">
-                            <Heart size={18} className="text-rose-400 fill-rose-400" />
+                            <span>❤️</span>
                             감사 편지 쓰기
                         </button>
                         <button className="px-8 py-4 bg-white border border-stone-200 text-stone-700 rounded-xl font-medium hover:bg-stone-50 transition-colors flex items-center justify-center gap-2">
-                            <Download size={18} />
+                            <span>⬇️</span>
                             이미지로 저장
                         </button>
                     </div>
