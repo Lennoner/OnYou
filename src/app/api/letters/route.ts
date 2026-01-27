@@ -1,29 +1,49 @@
-import { NextResponse } from 'next/server';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { successResponse, ApiErrors } from "@/lib/api-response";
+import { validateRequired, sanitizeHtml, checkRateLimit } from "@/lib/validation";
 
 export async function POST(req: Request) {
-    // Mock User ID for Sender
-    const senderId = "1";
+    // Get user ID from session
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+        return ApiErrors.unauthorized();
+    }
+
+    const senderId = session.user.id;
+
+    // Rate limiting: 20 letters per hour per user
+    const rateLimit = checkRateLimit(`letter:${senderId}`, 20, 3600000);
+    if (!rateLimit.allowed) {
+        return ApiErrors.tooManyRequests("Too many letters sent. Please try again later.");
+    }
 
     try {
         const body = await req.json();
         const { content, template, recipientName } = body;
 
-        // Basic Validation
-        if (!content) {
-            return NextResponse.json({ error: "Content is required" }, { status: 400 });
+        // Validation
+        const validation = validateRequired(body, ['content']);
+        if (!validation.valid) {
+            return ApiErrors.validationError("Content is required");
         }
 
-        // In a real app, we might search for a user by recipientName or use a specific receiverId.
-        // For now, if string is provided, we might just store it in content or handle it loosely since schema expects receiverId as User relation.
-        // However, our schema `receiverId` is nullable. If we don't have a real user ID for the recipient, we leave it null.
-        // But we might want to store the "intended name" somewhere.
-        // Valid hack for MVP: If we don't have the user ID for "recipientName", we just create the letter with null receiverId.
-        // Or we could try to find a user by name (mock).
+        if (typeof content !== 'string' || content.trim().length === 0) {
+            return ApiErrors.validationError("Content must be a non-empty string");
+        }
 
-        // Attempt to find friend by name to link relation (optional polish)
+        if (content.length > 10000) {
+            return ApiErrors.validationError("Content is too long (max 10000 characters)");
+        }
+
+        // Sanitize content to prevent XSS
+        const sanitizedContent = sanitizeHtml(content);
+
+        // Attempt to find friend by name to link relation
         let receiverId = null;
-        if (recipientName) {
+        if (recipientName && typeof recipientName === 'string') {
             const friend = await prisma.user.findFirst({
                 where: { name: recipientName }
             });
@@ -33,18 +53,18 @@ export async function POST(req: Request) {
         const letter = await prisma.letter.create({
             data: {
                 senderId,
-                receiverId: receiverId,
-                content,
+                receiverId,
+                content: sanitizedContent,
                 template: template || "default",
-                // If we want to store the "raw name" when no user is found, our current schema doesn't support it directly 
-                // without adding a field like `recipientNameString`. 
-                // For MVP, we proceed with relations.
             },
         });
 
-        return NextResponse.json({ success: true, letter });
+        return successResponse(
+            { letterId: letter.id },
+            "Letter sent successfully"
+        );
     } catch (error) {
         console.error("Failed to send letter:", error);
-        return NextResponse.json({ error: "Failed to send letter" }, { status: 500 });
+        return ApiErrors.internalError("Failed to send letter");
     }
 }

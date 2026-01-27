@@ -53,15 +53,19 @@ export function InviteCreator() {
         setIsCreating(true);
         try {
             const res = await fetch('/api/invites', { method: 'POST' });
-            if (!res.ok) throw new Error("Failed");
+            const result = await res.json();
 
-            const data = await res.json();
+            if (!result.success) {
+                throw new Error(result.error?.message || "Failed to create invite");
+            }
+
             // Use current origin for local testing support
             const origin = typeof window !== 'undefined' ? window.location.origin : 'https://onyou.app';
-            setInviteLink(`${origin}/invite?code=${data.code}&user=${encodeURIComponent(myName)}`);
+            setInviteLink(`${origin}/invite?code=${result.data.code}&user=${encodeURIComponent(myName)}`);
             setStep("share");
         } catch (e) {
-            toast.error("초대장 생성에 실패했습니다.");
+            const errorMessage = e instanceof Error ? e.message : "초대장 생성에 실패했습니다.";
+            toast.error(errorMessage);
             console.error(e);
         } finally {
             setIsCreating(false);

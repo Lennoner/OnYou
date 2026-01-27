@@ -1,18 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-
-// Types
-interface FriendNode {
-    id: string;
-    name: string;
-    avatar: string;
-    relation: string;
-    closeness: number;
-    status: "online" | "offline";
-    lastInteraction: string;
-}
+import type { FriendNode } from "@/types";
 
 // Mock Data
 const ME = {
@@ -26,41 +16,56 @@ export function ConnectionMap() {
     const [isAddMode, setIsAddMode] = useState(false);
     const [friends, setFriends] = useState<FriendNode[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    React.useEffect(() => {
-        const fetchFriends = async () => {
-            try {
-                const res = await fetch('/api/friends');
-                if (!res.ok) throw new Error('Err');
-                const data = await res.json();
+    const fetchFriends = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            setError(null);
 
-                const nodes: FriendNode[] = data.map((f: any) => ({
-                    id: f.id,
-                    name: f.name,
-                    avatar: f.avatar,
-                    relation: f.relation,
-                    closeness: f.closeness || 50,
-                    status: Math.random() > 0.5 ? "online" : "offline",
-                    lastInteraction: f.lastInteraction || "Recently",
-                }));
+            const res = await fetch('/api/friends');
+            const result = await res.json();
 
-                setFriends(nodes);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setIsLoading(false);
+            if (!result.success) {
+                throw new Error(result.error?.message || 'Failed to fetch friends');
             }
-        };
-        fetchFriends();
+
+            const nodes: FriendNode[] = (result.data as FriendNode[]).map((f) => ({
+                id: f.id,
+                name: f.name,
+                avatar: f.avatar,
+                relation: f.relation,
+                closeness: f.closeness || 50,
+                status: f.status || "offline", // TODO: Implement real-time status tracking
+                lastInteraction: f.lastInteraction || "Recently",
+            }));
+
+            setFriends(nodes);
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            console.error('Error fetching friends:', errorMessage);
+            setError(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
+
+    useEffect(() => {
+        fetchFriends();
+    }, [fetchFriends]);
 
     const getPosition = (index: number, total: number, closeness: number) => {
         if (total === 0) return { x: 0, y: 0 };
+
+        // Distribute friends evenly around a circle
         const angle = (index / total) * 2 * Math.PI;
-        const maxRadius = 300;
-        const minRadius = 120;
-        const normalizedDistance = 1 - (closeness / 100);
+
+        // Position based on closeness: higher closeness = closer to center
+        const maxRadius = 300; // Farthest distance from center
+        const minRadius = 120; // Closest distance from center
+        const normalizedDistance = 1 - (closeness / 100); // Invert: high closeness → low distance
         const radius = minRadius + (normalizedDistance * (maxRadius - minRadius));
+
         return {
             x: Math.cos(angle) * radius,
             y: Math.sin(angle) * radius,
@@ -75,6 +80,26 @@ export function ConnectionMap() {
         );
     }
 
+    if (error) {
+        return (
+            <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+                <div className="text-center max-w-md p-8">
+                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-3xl">⚠️</span>
+                    </div>
+                    <h2 className="text-xl font-bold text-stone-900 mb-2">친구 목록을 불러올 수 없습니다</h2>
+                    <p className="text-sm text-stone-500 mb-6">{error}</p>
+                    <button
+                        onClick={fetchFriends}
+                        className="px-6 py-3 bg-stone-900 text-white rounded-full font-bold hover:bg-stone-800 transition-colors"
+                    >
+                        다시 시도
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="relative w-full h-full min-h-screen bg-stone-50 overflow-hidden flex items-center justify-center">
 
@@ -84,13 +109,19 @@ export function ConnectionMap() {
             </div>
 
             {/* Main Connection Area */}
-            <div className="relative w-[800px] h-[800px] z-10 flex items-center justify-center">
+            <div className="relative w-full h-full max-w-[800px] max-h-[800px] aspect-square z-10 flex items-center justify-center">
 
                 {/* SVG Connections Layer */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
+                <svg
+                    className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
+                    viewBox="0 0 800 800"
+                    preserveAspectRatio="xMidYMid meet"
+                    aria-hidden="true"
+                    role="presentation"
+                >
                     {friends.map((friend, i) => {
                         const pos = getPosition(i, friends.length, friend.closeness);
-                        const center = { x: 400, y: 400 };
+                        const center = { x: 400, y: 400 }; // Center of viewBox
                         const target = { x: 400 + pos.x, y: 400 + pos.y };
 
                         return (
@@ -132,9 +163,7 @@ export function ConnectionMap() {
                         >
                             <div className="relative w-full h-full rounded-full overflow-hidden">
                                 <Image src={friend.avatar} alt={friend.name} fill className="object-cover" sizes="64px" />
-                                {friend.status === "online" && (
-                                    <div className="absolute bottom-1 right-1 w-3 h-3 bg-green-400 border-2 border-white rounded-full"></div>
-                                )}
+                                {/* Online status indicator removed - TODO: Implement real-time status */}
                             </div>
 
                             <div className="absolute -bottom-6 w-24 text-center">

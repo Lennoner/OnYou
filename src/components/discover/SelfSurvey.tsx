@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, ArrowLeft, Check, Sparkles, Clock, Calendar, Rocket, Activity, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { RadarDataItem, SurveyAnswers } from "@/types";
 
 type Section = "BASIC" | "PAST" | "PRESENT" | "FUTURE";
 type QuestionType = "SCALE" | "MULTIPLE_CHOICE" | "TEXT";
@@ -113,14 +115,14 @@ const questions: Question[] = [
 ];
 
 interface SelfSurveyProps {
-    onComplete?: (data?: any) => void;
+    onComplete?: (data?: RadarDataItem[]) => void;
 }
 
 export function SelfSurvey({ onComplete }: SelfSurveyProps) {
     const [currentStep, setCurrentStep] = useState(0);
-    const [answers, setAnswers] = useState<Record<string, any>>({});
+    const [answers, setAnswers] = useState<SurveyAnswers>({});
     const [isCompleted, setIsCompleted] = useState(false);
-    const [resultData, setResultData] = useState<any>(null);
+    const [resultData, setResultData] = useState<RadarDataItem[] | null>(null);
 
     const currentQuestion = questions[currentStep];
     const progress = ((currentStep + 1) / questions.length) * 100;
@@ -136,14 +138,19 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ answers })
                 });
-                if (res.ok) {
-                    const data = await res.json();
-                    setResultData(data.radarData); // Store result
+
+                const result = await res.json();
+
+                if (result.success) {
+                    setResultData(result.data.radarData);
                     setIsCompleted(true);
+                } else {
+                    console.error('Failed to save survey:', result.error?.message);
+                    setIsCompleted(true); // Still show completion screen
                 }
             } catch (e) {
                 console.error(e);
-                setIsCompleted(true); // Fallback to show completion screen even if save fails (for now)
+                setIsCompleted(true); // Fallback to show completion screen even if save fails
             }
         }
     };
@@ -154,7 +161,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
         }
     };
 
-    const updateAnswer = (value: any) => {
+    const updateAnswer = (value: string | number | string[]) => {
         setAnswers(prev => ({
             ...prev,
             [currentQuestion.id]: value
@@ -169,27 +176,28 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
     };
 
     const updateMultipleChoice = (option: string) => {
-        const current = answers[currentQuestion.id] || [];
-        const updated = current.includes(option)
-            ? current.filter((item: string) => item !== option)
-            : [...current, option];
+        const current = answers[currentQuestion.id];
+        const currentArray = Array.isArray(current) ? current : [];
+        const updated = currentArray.includes(option)
+            ? currentArray.filter((item: string) => item !== option)
+            : [...currentArray, option];
         updateAnswer(updated);
     };
 
     const isCurrentStepValid = () => {
         const answer = answers[currentQuestion.id];
         if (currentQuestion.type === "MULTIPLE_CHOICE") {
-            return answer && answer.length > 0;
+            return Array.isArray(answer) && answer.length > 0;
         }
         return answer !== undefined && answer !== "";
     };
 
     const getSectionIcon = (section: Section) => {
         switch (section) {
-            case "BASIC": return "📈";
-            case "PAST": return "🕰️";
-            case "PRESENT": return "📅";
-            case "FUTURE": return "🚀";
+            case "BASIC": return <Activity size={18} />;
+            case "PAST": return <Clock size={18} />;
+            case "PRESENT": return <Calendar size={18} />;
+            case "FUTURE": return <Rocket size={18} />;
         }
     };
 
@@ -208,9 +216,9 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 mb-6 text-4xl"
+                    className="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 mb-6"
                 >
-                    ✨
+                    <Sparkles size={40} />
                 </motion.div>
                 <h2 className="text-3xl font-bold text-stone-900 mb-3">설문이 완료되었습니다!</h2>
                 <p className="text-stone-500 max-w-md mb-8">
@@ -243,7 +251,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                 <div className="flex justify-between items-end mb-4">
                     <div>
                         <span className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-xs font-bold mb-2">
-                            <span>{getSectionIcon(currentQuestion.section)}</span>
+                            {getSectionIcon(currentQuestion.section)}
                             {getSectionLabel(currentQuestion.section)}
                         </span>
                         <h2 className="text-xl font-bold text-stone-900">나의 이야기 기록하기</h2>
@@ -279,7 +287,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                             </h3>
                             {currentQuestion.subtext && (
                                 <div className="flex items-start gap-2 text-stone-500 bg-stone-50 p-3 rounded-lg inline-block">
-                                    <span className="mt-0.5 shrink-0 text-sm">💡</span>
+                                    <HelpCircle size={16} className="mt-0.5 shrink-0" />
                                     <p className="text-sm">{currentQuestion.subtext}</p>
                                 </div>
                             )}
@@ -314,23 +322,29 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                         {/* Multiple Choice Input */}
                         {currentQuestion.type === "MULTIPLE_CHOICE" && (
                             <div className="space-y-3">
-                                {currentQuestion.options?.map((option) => (
-                                    <button
-                                        key={option}
-                                        onClick={() => updateMultipleChoice(option)}
-                                        className={cn(
-                                            "w-full p-4 rounded-xl text-left font-medium transition-all flex items-center justify-between",
-                                            (answers[currentQuestion.id] || []).includes(option)
-                                                ? "bg-amber-50 text-amber-700 border-2 border-amber-500"
-                                                : "bg-stone-50 text-stone-600 border-2 border-transparent hover:bg-stone-100"
-                                        )}
-                                    >
-                                        {option}
-                                        {(answers[currentQuestion.id] || []).includes(option) && (
-                                            <span className="text-amber-500">✓</span>
-                                        )}
-                                    </button>
-                                ))}
+                                {currentQuestion.options?.map((option) => {
+                                    const currentAnswer = answers[currentQuestion.id];
+                                    const selectedOptions = Array.isArray(currentAnswer) ? currentAnswer : [];
+                                    const isSelected = selectedOptions.includes(option);
+
+                                    return (
+                                        <button
+                                            key={option}
+                                            onClick={() => updateMultipleChoice(option)}
+                                            className={cn(
+                                                "w-full p-4 rounded-xl text-left font-medium transition-all flex items-center justify-between",
+                                                isSelected
+                                                    ? "bg-amber-50 text-amber-700 border-2 border-amber-500"
+                                                    : "bg-stone-50 text-stone-600 border-2 border-transparent hover:bg-stone-100"
+                                            )}
+                                        >
+                                            {option}
+                                            {isSelected && (
+                                                <Check size={20} className="text-amber-500" />
+                                            )}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         )}
 
@@ -359,7 +373,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                             : "text-stone-600 hover:bg-stone-100"
                     )}
                 >
-                    <span>←</span>
+                    <ArrowLeft size={18} />
                     이전
                 </button>
 
@@ -374,7 +388,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
                     )}
                 >
                     {currentStep === questions.length - 1 ? "완료하기" : "다음"}
-                    {currentStep === questions.length - 1 ? <span>✓</span> : <span>→</span>}
+                    {currentStep === questions.length - 1 ? <Check size={18} /> : <ArrowRight size={18} />}
                 </button>
             </div>
         </div>
