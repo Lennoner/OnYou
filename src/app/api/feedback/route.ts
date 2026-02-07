@@ -15,6 +15,16 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Invalid invite code" }, { status: 404 });
         }
 
+        // 1-1. Check if invite has expired
+        if (invite.expiresAt && new Date(invite.expiresAt) < new Date()) {
+            return NextResponse.json({ error: "This invite code has expired" }, { status: 410 });
+        }
+
+        // 1-2. Check if invite has reached max uses
+        if (invite.usedCount >= invite.maxUses) {
+            return NextResponse.json({ error: "This invite code has reached its usage limit" }, { status: 410 });
+        }
+
         // 2. Create PeerFeedback
         const feedback = await prisma.peerFeedback.create({
             data: {

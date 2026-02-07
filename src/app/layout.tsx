@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Noto_Serif_KR, Playfair_Display } from "next/font/google";
 import { Sidebar } from "@/components/Sidebar";
 import { MobileNav } from "@/components/MobileNav";
 import { Toaster } from "sonner";
@@ -10,25 +9,13 @@ export const metadata: Metadata = {
     description: "Identify your true self through the eyes of others.",
 };
 
-const notoserif = Noto_Serif_KR({
-    subsets: ['latin'],
-    weight: ['200', '300', '400', '500', '600', '700'],
-    variable: '--font-noto-serif',
-});
-
-const playfair = Playfair_Display({
-    subsets: ['latin'],
-    weight: ['400', '600'],
-    variable: '--font-playfair',
-});
-
 export default function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="ko" className={`${notoserif.variable} ${playfair.variable}`}>
+        <html lang="ko">
             <head>
                 <link rel="stylesheet" as="style" crossOrigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
             </head>

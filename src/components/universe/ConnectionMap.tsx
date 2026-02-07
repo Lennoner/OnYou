@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 // Types
 interface FriendNode {
@@ -47,6 +48,7 @@ export function ConnectionMap() {
                 setFriends(nodes);
             } catch (error) {
                 console.error(error);
+                toast.error("친구 목록을 불러오는데 실패했습니다.");
             } finally {
                 setIsLoading(false);
             }
@@ -84,7 +86,7 @@ export function ConnectionMap() {
             </div>
 
             {/* Main Connection Area */}
-            <div className="relative w-[800px] h-[800px] z-10 flex items-center justify-center">
+            <div className="relative w-full max-w-[800px] h-[min(800px,90vh)] z-10 flex items-center justify-center">
 
                 {/* SVG Connections Layer */}
                 <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">

@@ -2,115 +2,9 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-
-type Section = "BASIC" | "PAST" | "PRESENT" | "FUTURE";
-type QuestionType = "SCALE" | "MULTIPLE_CHOICE" | "TEXT";
-
-interface Question {
-    id: string;
-    section: Section;
-    type: QuestionType;
-    text: string;
-    subtext?: string;
-    options?: string[]; // For MULTIPLE_CHOICE
-    scaleLabel?: { min: string; max: string }; // For SCALE
-    placeholder?: string; // For TEXT
-}
-
-const questions: Question[] = [
-    // Basic
-    {
-        id: "basic1",
-        section: "BASIC",
-        type: "SCALE",
-        text: "요즘 전반적인 나의 심리적 상태는 어떤가요?",
-        scaleLabel: { min: "무기력함", max: "활기참" }
-    },
-    // Past
-    {
-        id: "past1",
-        section: "PAST",
-        type: "SCALE",
-        text: "나는 과거에 어려운 상황이나 난관을 결국 내 힘으로 극복해본 적이 있다",
-        scaleLabel: { min: "전혀 아니다", max: "매우 그렇다" }
-    },
-    {
-        id: "past2",
-        section: "PAST",
-        type: "SCALE",
-        text: "나는 내가 거둔 성과나 결과물에 대해 충분히 자부심을 느낀다",
-        scaleLabel: { min: "전혀 아니다", max: "매우 그렇다" }
-    },
-    {
-        id: "past-select",
-        section: "PAST",
-        type: "MULTIPLE_CHOICE",
-        text: "내가 얻은 긍정적인 결과들은 주로 무엇 덕분이라고 생각하나요?",
-        subtext: "해당하는 것을 모두 선택해주세요.",
-        options: ["운이나 좋은 타이밍", "주변 사람들의 도움", "나의 노력과 역량"]
-    },
-    {
-        id: "past-text",
-        section: "PAST",
-        type: "TEXT",
-        text: "내 삶에서 가장 에너지가 넘치던 순간은?",
-        placeholder: "그때의 상황과 기분을 떠올려보세요."
-    },
-    // Present
-    {
-        id: "present1",
-        section: "PRESENT",
-        type: "SCALE",
-        text: "나는 현재 주변 사람들의 삶에 긍정적인 영향을 주고 있다",
-        scaleLabel: { min: "전혀 아니다", max: "매우 그렇다" }
-    },
-    {
-        id: "present2",
-        section: "PRESENT",
-        type: "SCALE",
-        text: "나는 내가 속한 그룹(친구, 팀, 직장 등)에서 꼭 필요한 사람이라고 느낀다",
-        scaleLabel: { min: "전혀 아니다", max: "매우 그렇다" }
-    },
-    {
-        id: "present-select",
-        section: "PRESENT",
-        type: "SCALE",
-        text: "나는 친구나 동료에게 특별한 존재라고 느낀다",
-        scaleLabel: { min: "전혀 아니다", max: "매우 그렇다" }
-    },
-    {
-        id: "present-text",
-        section: "PRESENT",
-        type: "TEXT",
-        text: "주변 사람들이 당신에게 고맙다고 말하거나 당신을 찾는 이유는?",
-        subtext: "예: 고민 상담, 밥 같이 먹기, 기술적 도움, 분위기 메이커 등",
-        placeholder: "구체적인 이유를 적어보세요."
-    },
-    // Future
-    {
-        id: "future1",
-        section: "FUTURE",
-        type: "SCALE",
-        text: "나는 미래에 내가 원하는 분야에서 나만의 가치를 증명할 잠재력이 충분하다",
-        scaleLabel: { min: "전혀 아니다", max: "매우 그렇다" }
-    },
-    {
-        id: "future2",
-        section: "FUTURE",
-        type: "SCALE",
-        text: "3년 뒤 나는 내가 원하는 방향으로 성장해 있을 것이다",
-        scaleLabel: { min: "전혀 아니다", max: "매우 그렇다" }
-    },
-    {
-        id: "future-text",
-        section: "FUTURE",
-        type: "TEXT",
-        text: "두려움 없이 도전하고 싶은 것은 무엇인가요?",
-        subtext: "분야, 역할, 도전 등 자유롭게 적어주세요",
-        placeholder: "가슴 뛰는 도전을 적어보세요."
-    },
-];
+import { selfSurveyQuestions as questions, type Section } from "@/constants/survey-questions";
 
 interface SelfSurveyProps {
     onComplete?: (data?: any) => void;
@@ -120,6 +14,7 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
     const [currentStep, setCurrentStep] = useState(0);
     const [answers, setAnswers] = useState<Record<string, any>>({});
     const [isCompleted, setIsCompleted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [resultData, setResultData] = useState<any>(null);
 
     const currentQuestion = questions[currentStep];
@@ -130,20 +25,23 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
             setCurrentStep(prev => prev + 1);
         } else {
             // Submit Data
+            if (isSubmitting) return;
+            setIsSubmitting(true);
             try {
                 const res = await fetch('/api/discover', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ answers })
                 });
-                if (res.ok) {
-                    const data = await res.json();
-                    setResultData(data.radarData); // Store result
-                    setIsCompleted(true);
-                }
+                if (!res.ok) throw new Error("Failed to save survey");
+                const data = await res.json();
+                setResultData(data.radarData);
+                setIsCompleted(true);
             } catch (e) {
                 console.error(e);
-                setIsCompleted(true); // Fallback to show completion screen even if save fails (for now)
+                toast.error("설문 저장에 실패했습니다. 다시 시도해주세요.");
+            } finally {
+                setIsSubmitting(false);
             }
         }
     };
@@ -365,16 +263,16 @@ export function SelfSurvey({ onComplete }: SelfSurveyProps) {
 
                 <button
                     onClick={handleNext}
-                    disabled={!isCurrentStepValid()}
+                    disabled={!isCurrentStepValid() || isSubmitting}
                     className={cn(
                         "flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all shadow-lg",
-                        !isCurrentStepValid()
+                        !isCurrentStepValid() || isSubmitting
                             ? "bg-stone-200 text-stone-400 cursor-not-allowed shadow-none"
                             : "bg-stone-900 text-white hover:bg-stone-800 hover:-translate-y-1 shadow-stone-200"
                     )}
                 >
-                    {currentStep === questions.length - 1 ? "완료하기" : "다음"}
-                    {currentStep === questions.length - 1 ? <span>✓</span> : <span>→</span>}
+                    {isSubmitting ? "저장 중..." : currentStep === questions.length - 1 ? "완료하기" : "다음"}
+                    {!isSubmitting && (currentStep === questions.length - 1 ? <span>✓</span> : <span>→</span>)}
                 </button>
             </div>
         </div>

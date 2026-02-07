@@ -102,10 +102,11 @@ model SurveyResponse {
 }
 
 model Letter {
-  id        String   @id @default(cuid())
-  senderId  String
-  receiverId String? // Can be null if sending to non-user (by email/link)
-  
+  id             String   @id @default(cuid())
+  senderId       String
+  receiverId     String? // Can be null if sending to non-user (by email/link)
+  recipientName  String? // Stores intended recipient name when receiverId is null
+
   content   String
   template  String? // "thankyou", "cheerup", etc.
   isRead    Boolean  @default(false)

@@ -34,11 +34,9 @@ export async function POST(req: Request) {
             data: {
                 senderId,
                 receiverId: receiverId,
+                recipientName: recipientName || null,
                 content,
                 template: template || "default",
-                // If we want to store the "raw name" when no user is found, our current schema doesn't support it directly 
-                // without adding a field like `recipientNameString`. 
-                // For MVP, we proceed with relations.
             },
         });
 

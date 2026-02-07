@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
@@ -50,8 +51,7 @@ export function LetterWriter() {
             setStep("sent");
         } catch (error) {
             console.error(error);
-            // In real app, show toast error
-            alert("메시지 전송에 실패했습니다.");
+            toast.error("메시지 전송에 실패했습니다.");
         }
     };
 
