@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
-import { GET as authRoute } from "../auth/[...nextauth]/route";
-
-// Helper to get session (since we can't import authOptions easily if not exported, 
-// but we exported the handler. We might need to refactor authOptions to be shared 
-// if getServerSession requires it. 
-// Actually, in App Router, we can use a slightly different pattern or just use the handler's config if extracted.
-// For now, let's try a simpler approach since we are using the Mock Provider which puts user in session.
+import { getSession } from "@/lib/auth";
 
 export async function GET(req: Request) {
-    const userId = "1"; // Mock ID
+    const session = await getSession();
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
 
     try {
         // 1. Fetch Registered Connections
@@ -38,12 +37,10 @@ export async function GET(req: Request) {
         }));
 
         // 4. Format Guests
-        // Group by respondentName to avoid duplicates if same guest answered multiple times?
-        // For MVP, simplistic mapping:
         const guestFriends = guestFeedbacks.map(f => ({
-            id: f.id, // Use feedback ID as temporary Friend ID
+            id: f.id,
             name: f.respondentName || "익명 친구",
-            avatar: null, // No avatar for guests
+            avatar: null,
             relation: "피드백 게스트",
             tags: ["게스트", "피드백완료"],
             closeness: 0,

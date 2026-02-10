@@ -75,6 +75,7 @@ const feedbackGroups = [
 
 interface AnalysisResultProps {
     onRetake?: () => void;
+    userName?: string;
     data?: {
         radarData: any[];
         answers?: Record<string, any>;
@@ -87,7 +88,8 @@ interface AnalysisResultProps {
     };
 }
 
-export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
+export function AnalysisResult({ onRetake, data, userName }: AnalysisResultProps) {
+    const displayName = userName || '사용자';
     // Use passed data or fallback to mock
     const chartData = data?.radarData || radarData;
     const peerCount = data?.peerCount || 0;
@@ -153,7 +155,7 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
                         transition={{ delay: 0.1 }}
                         className="text-3xl md:text-4xl font-bold text-stone-900 mb-4 tracking-tight"
                     >
-                        지수님의 발견된 가치
+                        {displayName}님의 발견된 가치
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0, y: 10 }}
@@ -221,7 +223,7 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
                             <span className="text-amber-600 decoration-amber-200 underline decoration-2 underline-offset-4">더 높게 평가</span>하고 있어요
                         </h2>
                         <p className="text-stone-600 leading-relaxed text-lg">
-                            스스로 생각하는 것보다 친구들은 지수님의 <strong>영향력</strong>과 <strong>회복탄력성</strong>을 높게 샀습니다.
+                            스스로 생각하는 것보다 친구들은 {displayName}님의 <strong>영향력</strong>과 <strong>회복탄력성</strong>을 높게 평가했습니다.
                             특히 힘든 상황에서도 묵묵히 해내는 모습이 주변에 큰 울림을 주었던 것 같아요.
                         </p>
                         <div className="pt-4">
@@ -318,10 +320,10 @@ export function AnalysisResult({ onRetake, data }: AnalysisResultProps) {
                             </p>
 
                             <div className="bg-white/10 rounded-xl p-5 border border-white/5 mt-4">
-                                <h4 className="font-bold text-white mb-2 text-sm">지수님의 맹점 발견 ✨</h4>
+                                <h4 className="font-bold text-white mb-2 text-sm">{displayName}님의 맹점 발견 ✨</h4>
                                 <p className="text-stone-300 text-sm">
                                     <strong className="text-amber-300">긍정적 영향</strong> 항목에서 가장 큰 점수 차이(1.8점)가 발견되었습니다.
-                                    지수님은 자신의 에너지를 과소평가하고 있지만, 친구들은 지수님을 <span className="text-white underline decoration-amber-400/50">&quot;주변을 밝히는 사람&quot;</span>으로 인식하고 있습니다.
+                                    {displayName}님은 자신의 에너지를 과소평가하고 있지만, 친구들은 {displayName}님을 <span className="text-white underline decoration-amber-400/50">&quot;주변을 밝히는 사람&quot;</span>으로 인식하고 있습니다.
                                 </p>
                             </div>
                         </div>

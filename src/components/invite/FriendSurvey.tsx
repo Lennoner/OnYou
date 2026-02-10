@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Check, Star, ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -184,7 +183,7 @@ export function FriendSurvey() {
         return (
             <div className="min-h-screen bg-stone-900 flex flex-col items-center justify-center text-white p-8 text-center">
                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-                    <Check className="w-20 h-20 text-green-400 mx-auto mb-6" />
+                    <div className="text-6xl mb-6">✅</div>
                     <h1 className="text-3xl font-bold mb-4">답변해주셔서 감사합니다!</h1>
                     <p className="text-stone-400 text-lg mb-8">
                         {targetName}님에게 당신의 따뜻한 마음이 전달되었습니다.
@@ -221,7 +220,7 @@ export function FriendSurvey() {
                         disabled={isSubmitting}
                         className="w-full py-4 bg-stone-900 text-white rounded-xl font-bold text-lg hover:bg-stone-800 transition-all flex items-center justify-center gap-2"
                     >
-                        {isSubmitting ? "전송 중..." : "답변 완료하기"} <Check size={20} />
+                        {isSubmitting ? "전송 중..." : "답변 완료하기"} <span>✅</span>
                     </button>
                 </div>
             </div>
@@ -307,7 +306,7 @@ export function FriendSurvey() {
                                             )}
                                         >
                                             {opt}
-                                            {(answers[currentQuestion.id] as string[] || []).includes(opt) && <Check size={18} />}
+                                            {(answers[currentQuestion.id] as string[] || []).includes(opt) && <span>✅</span>}
                                         </button>
                                     ))}
                                     <div className="flex justify-end mt-4">
@@ -353,7 +352,7 @@ export function FriendSurvey() {
                         disabled={step === 0}
                         className="text-stone-400 hover:text-stone-600 disabled:opacity-30"
                     >
-                        <ArrowLeft />
+                        <span className="text-xl">←</span>
                     </button>
                 </div>
             </div>

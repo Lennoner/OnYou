@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
@@ -106,7 +107,10 @@ export function Sidebar() {
 
             {/* Footer */}
             <div className="p-6 border-t border-stone-100">
-                <button className="w-full flex items-center gap-3 px-3 py-2.5 text-stone-400 hover:text-stone-600 transition-colors group rounded-xl hover:bg-stone-50">
+                <button
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-stone-400 hover:text-stone-600 transition-colors group rounded-xl hover:bg-stone-50"
+                >
                     <span className="text-lg">🚪</span>
                     <span className="text-sm font-medium">로그아웃</span>
                 </button>

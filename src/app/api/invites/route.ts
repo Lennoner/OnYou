@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
 
-// Helper to generate random code
 function generateCode(length = 6) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
@@ -12,7 +12,13 @@ function generateCode(length = 6) {
 }
 
 export async function POST(req: Request) {
-    const userId = "1"; // Mock ID
+    const session = await getSession();
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
 
     try {
         const code = generateCode();
@@ -21,7 +27,6 @@ export async function POST(req: Request) {
             data: {
                 code,
                 creatorId: userId,
-                // expires in 7 days
                 expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             }
         });

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 // Sentence Completion Templates (Reused for Invite Message)
 const inviteTemplates = [
@@ -43,8 +44,8 @@ export function InviteCreator() {
     const [inviteLink, setInviteLink] = useState("");
     const [isCreating, setIsCreating] = useState(false);
 
-    // Mock User Name (In real app, get from session)
-    const myName = "지수";
+    const { data: session } = useSession();
+    const myName = session?.user?.name || "사용자";
 
     const handleCreate = async () => {
         // Validation removed as we don't need friend name to generate a generic link anymore

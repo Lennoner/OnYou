@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, Check, Star, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -157,7 +156,7 @@ export function RegisteredFriendSurvey({ friendId }: { friendId: string }) {
         return (
             <div className="min-h-screen bg-stone-900 flex flex-col items-center justify-center text-white p-8 text-center">
                 <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-                    <Check className="w-20 h-20 text-green-400 mx-auto mb-6" />
+                    <div className="text-6xl mb-6">✅</div>
                     <h1 className="text-3xl font-bold mb-4">평가 완료!</h1>
                     <p className="text-stone-400 text-lg mb-8">
                         친구의 우주에 당신의 별이 추가되었습니다.
@@ -178,7 +177,7 @@ export function RegisteredFriendSurvey({ friendId }: { friendId: string }) {
             <div className="max-w-xl w-full bg-white md:rounded-3xl shadow-xl overflow-hidden min-h-screen md:min-h-[700px] flex flex-col">
                 <div className="p-6 border-b border-stone-100 bg-stone-50 flex items-center justify-between">
                     <button onClick={() => router.back()} className="text-stone-400 hover:text-stone-600">
-                        <ArrowLeft />
+                        <span className="text-xl">←</span>
                     </button>
                     <div className="flex-1 px-4">
                         <div className="w-full h-1.5 bg-stone-200 rounded-full overflow-hidden">
@@ -257,7 +256,7 @@ export function RegisteredFriendSurvey({ friendId }: { friendId: string }) {
                                             )}
                                         >
                                             {opt}
-                                            {(answers[currentQuestion.id] as string[] || []).includes(opt) && <Check size={16} />}
+                                            {(answers[currentQuestion.id] as string[] || []).includes(opt) && <span>✅</span>}
                                         </button>
                                     ))}
                                     <button onClick={handleNext} className="w-full py-3 bg-stone-900 text-white rounded-xl font-bold mt-4">다음</button>

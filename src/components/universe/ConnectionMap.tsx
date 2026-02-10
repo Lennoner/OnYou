@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 // Types
 interface FriendNode {
@@ -14,18 +15,15 @@ interface FriendNode {
     lastInteraction: string;
 }
 
-// Mock Data
-const ME = {
-    id: "me",
-    name: "나",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"
-};
-
 export function ConnectionMap() {
+    const { data: session } = useSession();
     const [selectedFriend, setSelectedFriend] = useState<FriendNode | null>(null);
     const [isAddMode, setIsAddMode] = useState(false);
     const [friends, setFriends] = useState<FriendNode[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    const myName = session?.user?.name || "나";
+    const myAvatar = session?.user?.image || "";
 
     React.useEffect(() => {
         const fetchFriends = async () => {
@@ -69,8 +67,12 @@ export function ConnectionMap() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-                <p className="text-stone-400">Loading...</p>
+            <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-6">
+                <div className="relative w-20 h-20 mb-8">
+                    <div className="absolute inset-0 border-4 border-stone-100 rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-amber-400 rounded-full border-t-transparent animate-spin"></div>
+                </div>
+                <p className="text-stone-500 font-serif text-lg animate-pulse">우주를 탐색하는 중...</p>
             </div>
         );
     }
@@ -110,9 +112,13 @@ export function ConnectionMap() {
 
                 {/* Center Node (ME) */}
                 <div className="absolute z-20 w-24 h-24 rounded-full bg-white shadow-xl shadow-amber-200/50 flex items-center justify-center border-4 border-white ring-4 ring-amber-100">
-                    <Image src={ME.avatar} alt="Me" fill className="rounded-full object-cover" sizes="96px" />
+                    {myAvatar ? (
+                        <Image src={myAvatar} alt="Me" fill className="rounded-full object-cover" sizes="96px" />
+                    ) : (
+                        <span className="text-3xl font-bold text-amber-600">{myName[0]}</span>
+                    )}
                     <div className="absolute -bottom-8 bg-stone-900 text-white text-xs font-bold px-3 py-1 rounded-full">
-                        나 (Center)
+                        {myName}
                     </div>
                 </div>
 

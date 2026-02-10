@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-// Mock Templates to lower the burden of writing
+// Templates to lower the burden of writing
 const templates = [
     { id: "t1", icon: "❤️", label: "고마워요", text: "오늘 도와줘서 정말 고마워. 네 덕분에 큰 힘이 됐어!", color: "bg-rose-100 text-rose-600" },
     { id: "t2", icon: "☕", label: "수고했어", text: "요즘 많이 바쁘지? 항상 열심히 하는 모습 멋지다. 커피 한잔하면서 쉬어가!", color: "bg-amber-100 text-amber-700" },
@@ -13,17 +14,31 @@ const templates = [
     { id: "t4", icon: "✨", label: "축하해", text: "좋은 소식 들었어! 진심으로 축하해. 앞으로 더 좋은 일만 가득하길 바라.", color: "bg-emerald-100 text-emerald-600" },
 ];
 
-// Mock Recent Contacts
-const recentContacts = ["민수", "지영", "현우", "서연"];
-
 export function LetterWriter() {
     const searchParams = useSearchParams();
+    const { data: session } = useSession();
     const initialTo = searchParams.get('to') || "";
 
     const [step, setStep] = useState<"compose" | "sent">("compose");
     const [recipient, setRecipient] = useState(initialTo);
     const [message, setMessage] = useState("");
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+    const [recentContacts, setRecentContacts] = useState<string[]>([]);
+
+    useEffect(() => {
+        const fetchContacts = async () => {
+            try {
+                const res = await fetch('/api/friends');
+                if (res.ok) {
+                    const data = await res.json();
+                    setRecentContacts(data.map((f: any) => f.name).slice(0, 4));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+        fetchContacts();
+    }, []);
 
     const handleTemplateClick = (template: typeof templates[0]) => {
         setSelectedTemplate(template.id);
@@ -169,7 +184,7 @@ export function LetterWriter() {
                                     />
                                     <div className="mt-auto pt-4 flex justify-end">
                                         <span className="text-xs font-medium opacity-50">
-                                            From. 김지수
+                                            From. {session?.user?.name || '나'}
                                         </span>
                                     </div>
                                 </div>

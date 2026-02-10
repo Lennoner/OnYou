@@ -51,10 +51,19 @@ export function PeerSurvey() {
         fetchFriends();
     }, []);
 
-    const handleCopyLink = () => {
-        setCopied(true);
-        toast.success("초대 링크가 복사되었습니다!");
-        setTimeout(() => setCopied(false), 2000);
+    const handleCopyLink = async () => {
+        try {
+            const res = await fetch('/api/invites', { method: 'POST' });
+            if (!res.ok) throw new Error('Failed');
+            const data = await res.json();
+            const link = `${window.location.origin}/invite?code=${data.code}`;
+            await navigator.clipboard.writeText(link);
+            setCopied(true);
+            toast.success("초대 링크가 복사되었습니다!");
+            setTimeout(() => setCopied(false), 2000);
+        } catch (e) {
+            toast.error("링크 생성에 실패했습니다.");
+        }
     };
 
     const filteredFriends = friends.filter(friend =>

@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
 
 export async function POST(req: Request) {
     try {
+        const session = await getSession();
         const body = await req.json();
         const { targetUserId, scores, answers } = body;
 
-        // Mock current user
-        const myName = "지수";
+        const myName = session?.user?.name || "익명";
 
         if (!targetUserId) {
             return NextResponse.json({ error: "Missing target" }, { status: 400 });

@@ -1,0 +1,22 @@
+{
+    "name": "OnYou: 나를 찾는 여정",
+    "short_name": "OnYou",
+    "description": "타인의 시선으로 나를 발견하고, 새로운 연결을 시작해보세요.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#FAFAF9",
+    "theme_color": "#FAFAF9",
+    "icons": [
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "orientation": "portrait"
+}

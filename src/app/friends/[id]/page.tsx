@@ -27,34 +27,12 @@ export default function FriendDetailPage({ params }: { params: { id: string } })
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Mock Data Fetching for MVP
         async function fetchData() {
             try {
-                // Simulating API delay
-                await new Promise(r => setTimeout(r, 500));
-
-                setFriend({
-                    id: params.id,
-                    name: "친구", // Would be fetched
-                    relation: "친구",
-                    type: "USER",
-                    history: [
-                        {
-                            id: "f1",
-                            type: "FEEDBACK",
-                            date: "2024.01.24",
-                            content: "너는 정말 열정적인 사람이야. 특히...",
-                            direction: "RECEIVED"
-                        },
-                        {
-                            id: "l1",
-                            type: "LETTER",
-                            date: "2024.01.20",
-                            content: "저번에 고마웠어!",
-                            direction: "SENT"
-                        }
-                    ]
-                });
+                const res = await fetch(`/api/friends/${params.id}`);
+                if (!res.ok) throw new Error('Failed');
+                const data = await res.json();
+                setFriend(data);
             } catch (e) {
                 console.error(e);
             } finally {

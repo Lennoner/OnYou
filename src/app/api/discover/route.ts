@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
 
 export async function POST(req: Request) {
-    const userId = "1"; // Mock ID
+    const session = await getSession();
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
 
     try {
         const body = await req.json();
@@ -45,7 +52,13 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
-    const userId = "1";
+    const session = await getSession();
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = session.user.id;
 
     try {
         // 1. Fetch Self Survey
@@ -68,9 +81,9 @@ export async function GET(req: Request) {
         });
 
         const peerAnswers = {
-            q1: [] as any[], // Energy
-            q2: [] as any[], // Thanks
-            q3: [] as any[]  // Challenge
+            q1: [] as any[],
+            q2: [] as any[],
+            q3: [] as any[]
         };
 
         if (peerFeedbacks.length > 0) {
@@ -85,16 +98,13 @@ export async function GET(req: Request) {
                 const answers = JSON.parse(pf.answers);
                 const name = pf.respondentName || '친구';
 
-                // Map Scores (Note: IDs must match FriendSurvey questions)
-                // FriendSurvey: past1(Resilience), past2(Pride), present1(Influence), present2(Belonging1), present-select(Belonging2), future1(Potential), future2(Growth)
-                totals.recovery += (scores['past1'] || 0); // Resilience maps to past1
+                totals.recovery += (scores['past1'] || 0);
                 totals.pride += (scores['past2'] || 0);
                 totals.influence += (scores['present1'] || 0);
                 totals.belonging += ((scores['present2'] || 0) + (scores['present-select'] || 0)) / 2;
                 totals.potential += (scores['future1'] || 0);
                 totals.growth += (scores['future2'] || 0);
 
-                // Collect Text
                 if (answers['past-text']) peerAnswers.q1.push({ text: answers['past-text'], author: name });
                 if (answers['present-text']) peerAnswers.q2.push({ text: answers['present-text'], author: name });
                 if (answers['future-text']) peerAnswers.q3.push({ text: answers['future-text'], author: name });
@@ -114,7 +124,6 @@ export async function GET(req: Request) {
                 return { ...item, B: Number(peerScore.toFixed(1)) };
             });
         } else {
-            // No peer data yet, set B to 0 or null
             radarData = radarData.map((item: any) => ({ ...item, B: 0 }));
         }
 
@@ -122,7 +131,7 @@ export async function GET(req: Request) {
             exists: true,
             radarData,
             answers: selfAnswers,
-            peerAnswers, // New field
+            peerAnswers,
             peerCount: peerFeedbacks.length,
             createdAt: selfResponse.createdAt
         });
